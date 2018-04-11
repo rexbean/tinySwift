@@ -4,36 +4,39 @@ import sys
 
 def getServerInfo():
     # get server host name
-    HostName = socket.getfqdn(socket.gethostname(  ))
+    HostName = socket.getfqdn(socket.gethostname())
     # get server IP
     serverIP = socket.gethostbyname(HostName)
 
-    print('HostName =', HostName, 'serverIP=', serverIP)
     return HostName, serverIP
 
 def findAvailablePort(serverIP):
-    cPort = 0
-    port = 1024
-    ports = []
-
-    while port < 1300:
+    port = 0
+    while True:
         try:
             s= socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-            s.bind((serverIP, port))
-            print(str(port)+" is available")
+            s.bind((serverIP, 0))
+            port = s.getsockname()[1]
+            if(port > 1023):
+                break
             s.close()
         except OSError as e:
             print(e)
-        finally:
-            port += 1
+    return s
 
+def startServer(mySocket, port):
+    s.listen(1)
+    while 1:
+        conn,addr=s.accept()
+        print'Connected by',addr   
+        while 1:
+            data=conn.recv(1024)
+            print(data)
+            if len(cmd_result.strip()) ==0:
+                conn.sendall('Done.')
+            else:
+                conn.sendall(cmd_result)
 
-
-def startServer():
-    # get the IP address of the server
-    # get the available port of the machine
-    # print the IP address, host name, port of the Server
-    print ("IP = , Server=")
 
 def getArgument(serverIP):
     inputList = []
@@ -83,14 +86,19 @@ def getInput():
     return inputs.rstrip()
 
 if __name__ == '__main__':
+    # get server hostName, serverIP
     HostName, serverIP = getServerInfo()
 
-    # partitionPower = -1
-    # #while(partitionPower == -1): # comment when using the test files
-    # partitionPower, HDIPList = getArgument(serverIP)
-    # if partitionPower == -1:
-    #     print('invalid input')
+    # get and validate input
+    partitionPower = -1
+    #while(partitionPower == -1): # comment when using the test files
+    partitionPower, HDIPList = getArgument(serverIP)
+    if partitionPower == -1:
+        print('invalid input')
 
-    ports = findAvailablePort(serverIP)
+    # get availablePort
+    mySocket = findAvailablePort(serverIP)
+    print ('hostname = '+HostName+' serverIp = '+serverIP + 'port = '+mySocket[1])
 
-    startServer()
+    # start server
+    startServer(mySocket)
