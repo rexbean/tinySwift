@@ -11,6 +11,24 @@ def getServerInfo():
     print('HostName =', HostName, 'serverIP=', serverIP)
     return HostName, serverIP
 
+def findAvailablePort(serverIP):
+    cPort = 0
+    port = 1024
+    ports = []
+
+    while port < 1300:
+        try:
+            s= socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            s.bind((serverIP, port))
+            print(str(port)+" is available")
+            s.close()
+        except OSError as e:
+            print(e)
+        finally:
+            port += 1
+
+
+
 def startServer():
     # get the IP address of the server
     # get the available port of the machine
@@ -23,7 +41,6 @@ def getArgument(serverIP):
     input = getInput()
     # split input
     inputList = input.split(' ')
-    print('1.','inputList', inputList)
     # validate Input()
     if(validate(inputList,serverIP) == True):
         return inputList[0], inputList[1:]
@@ -32,22 +49,18 @@ def getArgument(serverIP):
 
 def validate(inputList, serverIP):
     if len(inputList) != 5:
-        print('2.',inputList, 'False')
         return False
     result = True
     for i, IP in enumerate(inputList):
         if i != 0:
             result = result and validateIP(serverIP, IP)
-    print('3.',inputList, result)
     return result
 
 def validateIP(serverIP, IP):
     subList = IP.split('.')
     subSList = serverIP.split('.')
-    print('4.',subList, subSList)
     result = True
     if len(subList) != 4:
-        print('5.',IP, 'False')
         return False
     else:
         result = result and  (subList[0] == '129' and subList[1] == '210' and subList[2] == '16')
@@ -55,11 +68,9 @@ def validateIP(serverIP, IP):
             subInt = int(subList[3])
             subSInt = int(subSList[3])
         except:
-            print('6.',IP, 'False')
             return False
         print(subInt, subSInt)
         result = result and (subInt >= 80 and subInt <= 100 and subInt != subSInt)
-        print('7.',IP, result)
         return result
 
 def getInput():
@@ -68,18 +79,18 @@ def getInput():
     while(line.rstrip() !=''):
         line = line.rstrip()
         inputs += line+' '
-        print('line=',inputs)
         line = sys.stdin.readline().rstrip()
     return inputs.rstrip()
 
 if __name__ == '__main__':
     HostName, serverIP = getServerInfo()
 
-    partitionPower = -1
-    #while(partitionPower == -1):
-    partitionPower, HDIPList = getArgument(serverIP)
-    if partitionPower == -1:
-        print('invalid input')
+    # partitionPower = -1
+    # #while(partitionPower == -1): # comment when using the test files
+    # partitionPower, HDIPList = getArgument(serverIP)
+    # if partitionPower == -1:
+    #     print('invalid input')
+
+    ports = findAvailablePort(serverIP)
 
     startServer()
-
