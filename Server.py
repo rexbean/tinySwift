@@ -99,7 +99,7 @@ if __name__ == '__main__':
     # get availablePort
     mySocket = findAvailablePort(serverIP)
     print ('hostname = '+HostName+' serverIp = '+serverIP \
-    + 'port = '+mySocket.getsockname()[1])
+    + 'port = '+str(mySocket.getsockname()[1]))
 
     # start server
     startServer(mySocket)
