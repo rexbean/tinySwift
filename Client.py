@@ -1,3 +1,4 @@
+import sys
 import socket
 
 
@@ -9,9 +10,9 @@ def getArgument():
     inputList = input.split(' ')
     # validate Input()
     if(validate(inputList) == True):
-        return inputList[0], inputList[1]
+        return inputList[0], int(inputList[1])
     else:
-        return -1, -1
+        return 'invalid', -1
 
 def getInput():
     inputs = ''
@@ -48,14 +49,19 @@ def validateIP(IP):
         result = result and (subInt >= 80 and subInt <= 100)
         return result
 
-if __name__ == '__name__':
-    IP, port = getArgument()
+if __name__ == '__main__':
+    IP = 'invalid'
+    while(IP == 'invalid'):
+        IP, port = getArgument()
+    print('serverIp = '+IP+' port = ' + str(port))
     mySocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    s.connect((IP,port))
+    mySocket.connect((IP,port))
     while 1:
         input=raw_input("Please input cmd:")
         print(input)
-        s.sendall(cmd)
-        data=s.recv(1024)
+        mySocket.sendall(input)
+        data=mySocket.recv(1024)
         print data
-    s.close()
+        if(data == 'end'):
+            break
+    mySocket.close()

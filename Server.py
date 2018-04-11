@@ -24,18 +24,21 @@ def findAvailablePort(serverIP):
             print(e)
     return s
 
-def startServer(mySocket, port):
-    s.listen(1)
+def startServer(mySocket):
+    mySocket.listen(1)
+    print('Server is listening...')
     while 1:
-        conn,addr=s.accept()
+        conn,addr=mySocket.accept()
         print'Connected by',addr
         while 1:
             data=conn.recv(1024)
             print(data)
-            if len(cmd_result.strip()) ==0:
-                conn.sendall('Done.')
+            if data != 'end':
+                conn.sendall('hello!'+addr[0])
             else:
-                conn.sendall(cmd_result)
+                print('server is closing')
+                conn.sendall('end')
+                mySocket.close()
 
 
 def getArgument(serverIP):
