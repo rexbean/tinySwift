@@ -30,15 +30,18 @@ def startServer(mySocket):
     while 1:
         conn,addr=mySocket.accept()
         print'Connected by',addr
-        while 1:
-            data=conn.recv(1024)
-            print(data)
-            if data != 'end':
-                conn.sendall('hello!'+addr[0])
-            else:
-                print('server is closing')
-                conn.sendall('end')
-                mySocket.close()
+        try:
+            while 1:
+                data=conn.recv(1024)
+                print(data)
+                if data != 'end':
+                    conn.sendall('hello!'+addr[0])
+                else:
+                    print('server is closing')
+                    conn.sendall('end')
+        except:
+            break
+        mySocket.close()
 
 
 def getArgument(serverIP):
