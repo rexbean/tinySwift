@@ -1,7 +1,106 @@
 #!/usr/bin/python
 import socket
 import sys
+import os
 
+
+################################################################################
+## command functions
+def wrongInput(conn):
+    print('wrong input!')
+    conn.send('wrong input! Please input again')
+
+def closeServer(conn):
+    print('server is closing')
+    conn.send('end')
+
+
+## validate command input
+def validateUp(inputList):
+    return validateFile(inputList)
+
+def validateDown(inputList):
+    return validateFile(inputList)
+
+def validateDelete(inputList):
+    return validateFile(inputList)
+
+def validateList(inputList):
+    return validateTwoArgs(inputList)
+
+def validateAdd(inputList):
+    return validateTwoArgs(inputList)
+
+def validateRemove(inputList):
+    return validateTwoArgs(inputList)
+
+
+def validateTwoArgs(inputList):
+    if(len(inputList) != 2):
+        return False
+    else:
+        return True
+
+def validateFile(inputList):
+    argumentList = inputList[1].split('/')
+    if(len(argumentList) != 2):
+        return False
+    else:
+        return True
+
+## command implements
+
+def upload(inputList, conn):
+    if(findFile(inputList[1])):
+        result = ''
+        conn.send(result)
+    else:
+        result = 'Cannot find the file'
+    return result
+
+def download(inputList, conn):
+    if(findFile(inputList[1])):
+        result = ''
+        conn.send(result)
+    else:
+        result = 'Cannot find the file'
+    return result
+
+def delete(inputList, conn):
+    if(findFile(inputList[1])):
+        result = ''
+        conn.send(result)
+    else:
+        result = 'Cannot find the file'
+    return result
+
+def myList(inputList, conn):
+    if(findUser(inputList[1])):
+        result = getFiles(inputList[1])
+        conn.send(result)
+    else:
+        result = 'Cannot find user'
+    return result
+
+##def add(inputList, conn):
+
+def findFile(name):
+    print(name)
+    code = os.system("md5Sum name")
+    print(code)
+    # code = code << 112
+    # if(code >= 0 and code < ):
+    #
+    # elif(code >= and code < ):
+    #
+    # elif(code >= and code < ):
+
+
+
+
+
+################################################################################
+##functions for Server
 def getServerInfo():
     # get server host name
     HostName = socket.getfqdn(socket.gethostname())
@@ -29,21 +128,49 @@ def startServer(mySocket):
     print('Server is listening...')
     while 1:
         conn,addr=mySocket.accept()
-        print'Connected by',addr
+        print('Connected by',addr)
         try:
             while 1:
-                data=conn.recv(1024)
-                print(data)
-                if data != 'end':
-                    conn.sendall('hello!'+addr[0])
+                inputList = []
+                input = conn.recv(1024)
+                if(input is None):
+                    wrongInput(conn)
+                    return False
+                ## do all lowercase
+                print(input)
+                inputList = input.rstrip().split(' ')
+                if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
+                    wrongInput(conn)
+                elif (inputList[0] == 'upload'):
+                    if(validateUp(inputList)):
+                        print(upload(inputList, conn))
+                elif (inputList[0] == 'list'):
+                    if(validateList(inputList)):
+                        print(myList(inputList, conn))
+                elif (inputList[0] == 'download'):
+                    if(validateDown(inputList)):
+                        print(download(inputList, conn))
+                elif (inputList[0] == 'delete'):
+                    if(validateDelete(inputList)):
+                        print(delete(inputList, conn))
+                elif (inputList[0] == 'add'):
+                    if(validateAdd(inputList)):
+                        print(add(inputList, conn))
+                elif (inputList[0] == 'remove'):
+                    if(validateRemove(inputList)):
+                        print(remove(inputList, conn))
+                elif (inputList[0] == 'end'):
+                    closeServer(conn)
+                    return True
                 else:
-                    print('server is closing')
-                    conn.sendall('end')
+                    wrongInput(conn)
+                    return False
         except:
             break
         mySocket.close()
 
-
+################################################################################
+## do something with the input
 def getArgument(serverIP):
     inputList = []
     # get Input
@@ -91,21 +218,25 @@ def getInput():
         line = sys.stdin.readline().rstrip()
     return inputs.rstrip()
 
+################################################################################
+## main function
 if __name__ == '__main__':
-    # get server hostName, serverIP
-    HostName, serverIP = getServerInfo()
 
-    # get and validate input
-    partitionPower = -1
-    #while(partitionPower == -1): # comment when using the test files
-    partitionPower, HDIPList = getArgument(serverIP)
-    if partitionPower == -1:
-        print('invalid input')
-
-    # get availablePort
-    mySocket = findAvailablePort(serverIP)
-    print ('hostname = '+HostName+' serverIp = '+serverIP \
-    + 'port = '+str(mySocket.getsockname()[1]))
-
-    # start server
-    startServer(mySocket)
+    findFile('my/user')
+    # # get server hostName, serverIP
+    # HostName, serverIP = getServerInfo()
+    #
+    # # get and validate input
+    # partitionPower = -1
+    # #while(partitionPower == -1): # comment when using the test files
+    # partitionPower, HDIPList = getArgument(serverIP)
+    # if partitionPower == -1:
+    #     print('invalid input')
+    #
+    # # get availablePort
+    # mySocket = findAvailablePort(serverIP)
+    # print ('hostname = '+HostName+' serverIp = '+serverIP \
+    # + 'port = '+str(mySocket.getsockname()[1]))
+    #
+    # # start server
+    # startServer(mySocket)
