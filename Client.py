@@ -44,13 +44,16 @@ def upload(input, mySocket):
     username = input.spliet(' ')[1].split('/')[0]
     filename = input.spliet(' ')[1].split('/')[1]
     try:
-        command = 'scp -B '+ filename +' '+loginName+'@'+ip+'/tmp/'\
+        directory = loginName+'@'+ip+'/tmp/'\
             +loginName+'/'+username+'/'
+        if(os.path.exists(directory) == false):
+            os.system('mkdir '+directory)
+        command = 'scp -B '+ filename +' '+directory
         result = os.system(command)
     except Exception as e:
         print(e)
     print(result)
-    return result
+    return result, ip
 
 ################################################################################
 ## client information
@@ -133,9 +136,9 @@ if __name__ == '__main__':
             continue
         if(inputList[0] == 'upload'):
             if(validateUp(inputList)):
-                disk = upload(input,mySocket)
+                result, ip = upload(input,mySocket)
                 print(inputList[1].split('/')[1] \
-                      +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
+                      +' will upload to '+ip)
         elif (inputList[0] == 'list'):
             if(validateList(inputList)):
                 print(myList(inputList, conn))
