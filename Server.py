@@ -3,7 +3,7 @@ import socket
 import sys
 import os
 import hashlib
-import global
+import myGlobal
 
 
 ################################################################################
@@ -246,8 +246,8 @@ if __name__ == '__main__':
     partitionPower, HDIPList = getArgument(serverIP)
     if partitionPower == -1:
         print('invalid input')
-        
-    global.partitionPower = partitionPower
+
+    myGlobal.partitionPower = partitionPower
 
 
     # get availablePort
