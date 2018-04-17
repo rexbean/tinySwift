@@ -2,10 +2,33 @@ import sys
 import socket
 import os
 
+
+
+################################################################################
+## command implements
+def upload(input, mySocket):
+    mySocket.sendall(input)
+    ip = mySocket.recv(1024)
+    username = input.spliet(' ')[1].split('/')[0]
+    filename = input.spliet(' ')[1].split('/')[1]
+    try:
+        command = 'scp -B '+ filename +' '+loginName+'@'+ip+'/tmp/'\
+            +loginName+'/'+username+'/'
+            result = os.system(command)
+    except Exception as e:
+        print(e)
+    print(result)
+    return result
+
+################################################################################
+## client information
 def getClientInfo():
     loginName = os.popen('whoami').read()
     return loginName.rstrip('\n')
 
+
+################################################################################
+## process the input
 def getArgument():
     inputList = []
     # get Input
@@ -27,6 +50,11 @@ def getInput():
         line = sys.stdin.readline().rstrip()
     return inputs.rstrip()
 
+def wrongInput():
+    print("Invalid input")
+
+################################################################################
+## validate input
 def validate(inputList):
     if len(inputList) != 2:
         return False
@@ -53,6 +81,8 @@ def validateIP(IP):
         result = result and (subInt >= 80 and subInt <= 100)
         return result
 
+################################################################################
+## main function
 if __name__ == '__main__':
     loginName = getClientInfo()
     print('loginName='+loginName)
@@ -65,13 +95,37 @@ if __name__ == '__main__':
     while 1:
         input = raw_input("Please input cmd:")
         #all lowercase
-        inputList= input.split(' ')
-        mySocket.sendall(input)
-        data=mySocket.recv(1024)
+        inputList = input.rstrip().split(' ')
+        if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
+            wrongInput()
+            continue
         if(inputList[0] == 'upload'):
-            username = inputList[1].split('')
-            command = 'scp -B '+ loginName
-        print data
+            if(validateUp(inputList)):
+                disk = upload(input,mySocket)
+                print(inputList[1].split('/')[1] \
+                      +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
+        elif (inputList[0] == 'list'):
+            if(validateList(inputList)):
+                print(myList(inputList, conn))
+        elif (inputList[0] == 'download'):
+            if(validateDown(inputList)):
+                print(download(inputList, conn))
+        elif (inputList[0] == 'delete'):
+            if(validateDelete(inputList)):
+                print(delete(inputList, conn))
+        elif (inputList[0] == 'add'):
+            if(validateAdd(inputList)):
+                print(add(inputList, conn))
+        elif (inputList[0] == 'remove'):
+            if(validateRemove(inputList)):
+                print(remove(inputList, conn))
+        elif (inputList[0] == 'end'):
+            closeServer(conn)
+            return True
+        else:
+            wrongInput(conn)
+            return False
+
         if(data == 'end'):
             break
     mySocket.close()
