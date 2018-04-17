@@ -153,7 +153,7 @@ def startServer(mySocket):
     print('Server is listening...')
     while 1:
         conn,addr=mySocket.accept()
-        print('Connected by'+ addr)
+        print('Connected by',addr)
         try:
             while 1:
                 print('$'),
@@ -163,9 +163,11 @@ def startServer(mySocket):
                     wrongInput(conn)
                     return False
                 ## do all lowercase
-                print(input)
+                print('input=',input)
+                if input == '':
+                    break
                 inputList = input.rstrip().split(' ')
-                if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
+                if(len(inputList) != 2 or inputList[0] == None):
                     wrongInput(conn)
                 elif (inputList[0] == 'upload'):
                     if(validateUp(inputList)):

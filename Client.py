@@ -41,18 +41,16 @@ def validateFile(inputList):
 def upload(input, mySocket):
     mySocket.sendall(input)
     ip = mySocket.recv(1024)
-    username = input.spliet(' ')[1].split('/')[0]
-    filename = input.spliet(' ')[1].split('/')[1]
+    username = input.split(' ')[1].split('/')[0]
+    filename = input.split(' ')[1].split('/')[1]
     try:
-        directory = loginName+'@'+ip+'/tmp/'\
-            +loginName+'/'+username+'/'
-        if(os.path.exists(directory) == false):
-            os.system('mkdir '+directory)
-        command = 'scp -B '+ filename +' '+directory
+        server = loginName+'@'+ip
+        directory = '/tmp/'+loginName+'/'+username+'/'
+        r = os.system('ssh '+ server +' mkdir -p '+directory)
+        command = 'scp -B '+ filename +' '+server+':'+directory
         result = os.system(command)
     except Exception as e:
         print(e)
-    print(result)
     return result, ip
 
 ################################################################################
@@ -137,8 +135,11 @@ if __name__ == '__main__':
         if(inputList[0] == 'upload'):
             if(validateUp(inputList)):
                 result, ip = upload(input,mySocket)
-                print(inputList[1].split('/')[1] \
-                      +' will upload to '+ip)
+                if result == 0:
+                    print(inputList[1].split('/')[1] \
+                      +' has upload to '+ip)
+                else:
+                    print('upload fail')
         elif (inputList[0] == 'list'):
             if(validateList(inputList)):
                 print(myList(inputList, conn))
@@ -159,6 +160,6 @@ if __name__ == '__main__':
         else:
             wrongInput()
 
-        if(data == 'end'):
+        if(input == 'end'):
             break
     mySocket.close()
