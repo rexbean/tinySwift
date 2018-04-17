@@ -46,7 +46,7 @@ def upload(input, mySocket):
     try:
         command = 'scp -B '+ filename +' '+loginName+'@'+ip+'/tmp/'\
             +loginName+'/'+username+'/'
-            result = os.system(command)
+        result = os.system(command)
     except Exception as e:
         print(e)
     print(result)
@@ -153,10 +153,8 @@ if __name__ == '__main__':
                 print(remove(inputList, conn))
         elif (inputList[0] == 'end'):
             closeServer(conn)
-            return True
         else:
-            wrongInput(conn)
-            return False
+            wrongInput()
 
         if(data == 'end'):
             break
