@@ -5,6 +5,38 @@ import os
 
 
 ################################################################################
+## validate command input
+def validateUp(inputList):
+    return validateFile(inputList)
+
+def validateDown(inputList):
+    return validateFile(inputList)
+
+def validateDelete(inputList):
+    return validateFile(inputList)
+
+def validateList(inputList):
+    return validateTwoArgs(inputList)
+
+def validateAdd(inputList):
+    return validateTwoArgs(inputList)
+
+def validateRemove(inputList):
+    return validateTwoArgs(inputList)
+
+
+def validateTwoArgs(inputList):
+    if(len(inputList) != 2):
+        return False
+    else:
+        return True
+
+def validateFile(inputList):
+    argumentList = inputList[1].split('/')
+    if(len(argumentList) != 2):
+        return False
+    else:
+        return True
 ## command implements
 def upload(input, mySocket):
     mySocket.sendall(input)
