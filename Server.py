@@ -3,6 +3,7 @@ import socket
 import sys
 import os
 import hashlib
+import math
 import myGlobal
 
 
@@ -53,10 +54,13 @@ def validateFile(inputList):
 ## command implements
 
 def upload(inputList, conn):
-    diks = consistentHashing(inputList[1]):
-    result = ''
-    conn.send(result)
-    return result
+    disk = 0
+    try:
+        disk = consistentHashing(inputList[1])
+        conn.send(myGlobal.diskList[disk])
+    except Exception as e:
+        print(e)
+    return disk 
 
 def download(inputList, conn):
     if(findFile(inputList[1])):
@@ -89,17 +93,23 @@ def consistentHashing(name):
     print('0x'+code)
     i_code = int(code, 16) >> 112
     print(hex(i_code))
-    if(i_code >= 0 and i_code < 16384):
-        print('disk one')
+    print(myGlobal.partitionPower)
+    try:
+        piece = math.pow(2,(float)(myGlobal.partitionPower))
+    except Exception as e:
+        print(e)
+    print('piece:',piece)
+    if(i_code >= 0 and i_code < piece):
+        print('disk Zero')
         return 0
-    elif(i_code >= 16384 and i_code < 32768):
-        print('disk two')
+    elif(i_code >= piece and i_code < 2 * piece ):
+        print('disk One')
         return 1
-    elif(i_code >= 32768 and i_code < 49152):
-        print('disk three')
+    elif(i_code >= 2 * piece and i_code < 3 * piece):
+        print('disk Two')
         return 2
-    elif(i_code >= 49152 and i_code < 65536):
-        print('disk four')
+    elif(i_code >= 3 * piece and i_code < 4 * piece):
+        print('disk Four')
         return 3
 
 def findFile(name):
@@ -122,7 +132,6 @@ def getServerInfo():
     # get server IP
     serverIP = socket.gethostbyname(HostName)
 
-
     return HostName, serverIP
 
 def findAvailablePort(serverIP):
@@ -144,9 +153,10 @@ def startServer(mySocket):
     print('Server is listening...')
     while 1:
         conn,addr=mySocket.accept()
-        print('Connected by',addr)
+        print('Connected by'+ addr)
         try:
             while 1:
+                print('$'),
                 inputList = []
                 input = conn.recv(1024)
                 if(input is None):
@@ -159,7 +169,9 @@ def startServer(mySocket):
                     wrongInput(conn)
                 elif (inputList[0] == 'upload'):
                     if(validateUp(inputList)):
-                        print(upload(inputList, conn))
+                        disk = upload(inputList,conn)
+                        print(inputList[1].split('/')[1] \
+                              +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
                 elif (inputList[0] == 'list'):
                     if(validateList(inputList)):
                         print(myList(inputList, conn))
@@ -221,8 +233,7 @@ def validateIP(serverIP, IP):
             subSInt = int(subSList[3])
         except:
             return False
-        print(subInt, subSInt)
-        result = result and (subInt >= 80 and subInt <= 100 and subInt != subSInt)
+        result = result and (subInt >= 80 and subInt < 100 and subInt != subSInt)
         return result
 
 def getInput():
@@ -248,12 +259,12 @@ if __name__ == '__main__':
         print('invalid input')
 
     myGlobal.partitionPower = partitionPower
-
+    myGlobal.diskList = HDIPList
 
     # get availablePort
     mySocket = findAvailablePort(serverIP)
-    print ('hostname = '+HostName+' serverIp = '+serverIP \
-    + 'port = '+str(mySocket.getsockname()[1]))
+    print ('hostname = '+HostName+'\nserverIp = '+serverIP\
+    + '\nport = '+str(mySocket.getsockname()[1]))
 
     # start server
     startServer(mySocket)

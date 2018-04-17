@@ -1,6 +1,10 @@
 import sys
 import socket
+import os
 
+def getClientInfo():
+    loginName = os.popen('whoami').read()
+    return loginName.rstrip('\n')
 
 def getArgument():
     inputList = []
@@ -50,6 +54,8 @@ def validateIP(IP):
         return result
 
 if __name__ == '__main__':
+    loginName = getClientInfo()
+    print('loginName='+loginName)
     IP = 'invalid'
     while(IP == 'invalid'):
         IP, port = getArgument()
@@ -57,10 +63,14 @@ if __name__ == '__main__':
     mySocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mySocket.connect((IP,port))
     while 1:
-        input=raw_input("Please input cmd:")
-        print(input)
+        input = raw_input("Please input cmd:")
+        #all lowercase
+        inputList= input.split(' ')
         mySocket.sendall(input)
         data=mySocket.recv(1024)
+        if(inputList[0] == 'upload'):
+            username = inputList[1].split('')
+            command = 'scp -B '+ loginName
         print data
         if(data == 'end'):
             break
