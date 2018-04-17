@@ -3,6 +3,7 @@ import socket
 import sys
 import os
 import hashlib
+import global
 
 
 ################################################################################
@@ -52,11 +53,9 @@ def validateFile(inputList):
 ## command implements
 
 def upload(inputList, conn):
-    if(findFile(inputList[1])):
-        result = ''
-        conn.send(result)
-    else:
-        result = 'Cannot find the file'
+    diks = consistentHashing(inputList[1]):
+    result = ''
+    conn.send(result)
     return result
 
 def download(inputList, conn):
@@ -84,8 +83,7 @@ def myList(inputList, conn):
     return result
 
 ##def add(inputList, conn):
-
-def findFile(name):
+def consistentHashing(name):
     print(name)
     code = getMD5SUM(name)
     print('0x'+code)
@@ -104,6 +102,9 @@ def findFile(name):
         print('disk four')
         return 3
 
+def findFile(name):
+    return consistentHashing(name)
+
 def getMD5SUM(name):
     myMd5 = hashlib.md5()
     myMd5.update(name)
@@ -120,6 +121,7 @@ def getServerInfo():
     HostName = socket.getfqdn(socket.gethostname())
     # get server IP
     serverIP = socket.gethostbyname(HostName)
+
 
     return HostName, serverIP
 
@@ -235,22 +237,23 @@ def getInput():
 ################################################################################
 ## main function
 if __name__ == '__main__':
+    # get server hostName, serverIP
+    HostName, serverIP = getServerInfo()
 
-    findFile('my/user')
-    # # get server hostName, serverIP
-    # HostName, serverIP = getServerInfo()
-    #
-    # # get and validate input
-    # partitionPower = -1
-    # #while(partitionPower == -1): # comment when using the test files
-    # partitionPower, HDIPList = getArgument(serverIP)
-    # if partitionPower == -1:
-    #     print('invalid input')
-    #
-    # # get availablePort
-    # mySocket = findAvailablePort(serverIP)
-    # print ('hostname = '+HostName+' serverIp = '+serverIP \
-    # + 'port = '+str(mySocket.getsockname()[1]))
-    #
-    # # start server
-    # startServer(mySocket)
+    # get and validate input
+    partitionPower = -1
+    #while(partitionPower == -1): # comment when using the test files
+    partitionPower, HDIPList = getArgument(serverIP)
+    if partitionPower == -1:
+        print('invalid input')
+        
+    global.partitionPower = partitionPower
+
+
+    # get availablePort
+    mySocket = findAvailablePort(serverIP)
+    print ('hostname = '+HostName+' serverIp = '+serverIP \
+    + 'port = '+str(mySocket.getsockname()[1]))
+
+    # start server
+    startServer(mySocket)
