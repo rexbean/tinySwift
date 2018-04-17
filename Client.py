@@ -41,8 +41,8 @@ def validateFile(inputList):
 def upload(input, mySocket):
     mySocket.sendall(input)
     ip = mySocket.recv(1024)
-    username = input.spliet(' ')[1].split('/')[0]
-    filename = input.spliet(' ')[1].split('/')[1]
+    username = input.split(' ')[1].split('/')[0]
+    filename = input.split(' ')[1].split('/')[1]
     try:
         directory = loginName+'@'+ip+'/tmp/'\
             +loginName+'/'+username+'/'
