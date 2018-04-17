@@ -2,6 +2,7 @@
 import socket
 import sys
 import os
+import hashlib
 
 
 ################################################################################
@@ -86,15 +87,28 @@ def myList(inputList, conn):
 
 def findFile(name):
     print(name)
-    code = os.system("md5Sum name")
-    print(code)
-    # code = code << 112
-    # if(code >= 0 and code < ):
-    #
-    # elif(code >= and code < ):
-    #
-    # elif(code >= and code < ):
+    code = getMD5SUM(name)
+    print('0x'+code)
+    i_code = int(code, 16) >> 112
+    print(hex(i_code))
+    if(i_code >= 0 and i_code < 16384):
+        print('disk one')
+        return 0
+    elif(i_code >= 16384 and i_code < 32768):
+        print('disk two')
+        return 1
+    elif(i_code >= 32768 and i_code < 49152):
+        print('disk three')
+        return 2
+    elif(i_code >= 49152 and i_code < 65536):
+        print('disk four')
+        return 3
 
+def getMD5SUM(name):
+    myMd5 = hashlib.md5()
+    myMd5.update(name)
+    myMd5_Digest = myMd5.hexdigest()
+    return myMd5_Digest
 
 
 
