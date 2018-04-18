@@ -37,21 +37,88 @@ def validateFile(inputList):
         return False
     else:
         return True
+
+################################################################################
 ## command implements
+
+## upload
 def upload(input, mySocket):
-    mySocket.sendall(input)
+    mySocket.send(input)
     ip = mySocket.recv(1024)
-    username = input.split(' ')[1].split('/')[0]
-    filename = input.split(' ')[1].split('/')[1]
+    if ip == '-1':
+        print('upload fail! File has already existed!')
+    else:
+        username = input.split(' ')[1].split('/')[0]
+        filename = input.split(' ')[1].split('/')[1]
+        try:
+            server = loginName+'@'+ip
+            directory = '/tmp/'+loginName+'/'+username+'/'
+            r = os.system('ssh '+ server +' mkdir -p '+directory)
+            command = 'scp -B '+ filename +' '+server+':'+directory
+            result = os.system(command)
+            print(inputList[1].split('/')[1] \
+              +' has upload to '+ip)
+        except Exception as e:
+            print(e)
+
+################################################################################
+## download
+def download(input, mySocket):
     try:
+        mySocket.send(input)
+        ip = mySocket.recv(1024)
+
+        username = input.split(' ')[1].split('/')[0]
+        filename = input.split(' ')[1].split('/')[1]
         server = loginName+'@'+ip
         directory = '/tmp/'+loginName+'/'+username+'/'
-        r = os.system('ssh '+ server +' mkdir -p '+directory)
-        command = 'scp -B '+ filename +' '+server+':'+directory
-        result = os.system(command)
+
+        os.system('mkdir -p '+ username)
+        ipList = ip.split(' ')
+        if(ipList[0] == '-1' and ipList[1] == '-1'):
+            print('Does not have this file!Please check!')
+        elif(ipList[0] == '-1'):
+            command = 'scp -B '+server+':'+directory+filename+ ' ./'+input
+            os.system(command)
     except Exception as e:
         print(e)
-    return result, ip
+
+###############################################################################3
+## delete
+def delete(input, mySocket):
+    try:
+        mySocket.send(input)
+        comfirmation = mySocket.recv(1024)
+        response = getInput()
+
+        mySocket.send(response)
+        result = mySocket.recv(1024)
+
+        if(result == '-1'):
+            print('the file has been deleted successfully!')
+        elif result == '0':
+            print('the file has not been deleted!')
+        elif result == '-1':
+            print('delete fail!')
+    except Exception as e:
+        print(e)
+        
+################################################################################
+## list
+def myList(input, mySocket):
+    try:
+        mySocket.send(input)
+        files = mySocket.recv(1024)
+        if files != '-1':
+            username = input.split(' ')[1]
+            print(username+'has files:')
+            fileList = files.split('$')
+            print(fileList[::-1])
+        else:
+            print('Do not have this user!')
+    except Exception as e:
+        print(e)
+
 
 ################################################################################
 ## client information
@@ -118,7 +185,7 @@ def validateIP(IP):
 ## main function
 if __name__ == '__main__':
     loginName = getClientInfo()
-    print('loginName='+loginName)
+    print('loginName = '+loginName)
     IP = 'invalid'
     while(IP == 'invalid'):
         IP, port = getArgument()
@@ -134,12 +201,8 @@ if __name__ == '__main__':
             continue
         if(inputList[0] == 'upload'):
             if(validateUp(inputList)):
-                result, ip = upload(input,mySocket)
-                if result == 0:
-                    print(inputList[1].split('/')[1] \
-                      +' has upload to '+ip)
-                else:
-                    print('upload fail')
+                upload(input,mySocket)
+
         elif (inputList[0] == 'list'):
             if(validateList(inputList)):
                 print(myList(inputList, conn))

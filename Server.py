@@ -52,40 +52,205 @@ def validateFile(inputList):
         return True
 
 ## command implements
-
+################################################################################
+## upload
 def upload(inputList, conn):
     disk = 0
     try:
         disk = consistentHashing(inputList[1])
-        conn.send(myGlobal.diskList[disk])
+        if myGlobal.originDict.has_key(inputList[1]):
+            print('A file with same has already existed!')
+            result = '-1'
+        else:
+            updateTableUp(inputList, disk)
+            result = myGlobal.diskList[disk]
+            print(inputList[1].split('/')[1] \
+                  +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
+        conn.send(result)
     except Exception as e:
         print(e)
-    return disk 
 
+
+
+################################################################################
+## download
 def download(inputList, conn):
-    if(findFile(inputList[1])):
-        result = ''
+    originDisk = searchOriginTable(inputList)
+    backupDisk = searchBackupTable(inputList)
+    try:
+        if originDisk == -1 and backupDisk == -1:
+            print('Cannot find this file!')
+        elif originDisk == -1:
+            print('original Disk does not have this file')
+            print('backup file is on disk '+ backupDisk)
+        elif backupDisk == -1:
+            print('original file is on disk' + originDisk)
+            print('backup Disk does not have this file')
+        else:
+            print('original file is on disk' + originDisk)
+            print('backup file is on disk' + backupDisk)
+        result = str(originDisk)+' '+str(backupDisk)
         conn.send(result)
-    else:
-        result = 'Cannot find the file'
-    return result
+    except Excetion as e:
+        print(e)
 
+################################################################################
+## delete
 def delete(inputList, conn):
-    if(findFile(inputList[1])):
-        result = ''
-        conn.send(result)
+    conn.send('Do you really want to delete this file?')
+    input = conn.recv(1024)
+    ## lowercase
+    if input == yes or input == y:
+        originDisk = searchOriginTable(inputList)
+        backupDisk = searchBackupTable(inputList)
+        try:
+            updateTableDelete(originDisk, backupDisk, inputList)
+            if originDisk == -1 and backupDisk == -1:
+                print('Cannot find this file!')
+                result = '-1'
+            else:
+                print('the file has been deleted successfully!')
+                result = '1'
+            conn.send(result)
+        except Excetion as e:
+            print(e)
     else:
-        result = 'Cannot find the file'
-    return result
+        print('The file has not been deleted!')
+        conn.send('0')
+
+################################################################################
+## list
 
 def myList(inputList, conn):
-    if(findUser(inputList[1])):
-        result = getFiles(inputList[1])
-        conn.send(result)
+    result = ''
+    username = inputList[1]
+    if myGlobal.userDict.has_key(username):
+        fileList = myGlobal.userDict[username]
+        print('Files are :')
+        for file in fileList:
+            result += file + '$'
+            print(file)
+        result = result.rstrip()
     else:
-        result = 'Cannot find user'
+        myGlobal.userDict[username] = fileList
+        print('Cannot find User!')
+        result = '-1'
+    conn.send(result)
+
+################################################################################
+## add
+
+# def add(inputList,conn):
+
+
+
+################################################################################
+## manipulate table
+
+def updateTableUp(inputList, disk):
+    updateStoreTableUp(inputList, disk)
+    updateUserTableUp(inputList, disk)
+    updateNumberTableUp(disk)
+    updateNumberTableUp(disk+1)
+
+def updateTableDelete(originDisk, backupDisk, inputList):
+    result = updateStoreTableDelete()
+    result = result and updateUserTableDelete()
     return result
 
+def updateStoreTableUp(inputList, disk):
+    myGlobal.originDict[inputList[1]] = disk
+    myGlobal.backupDict[inputList[1]] = disk + 1
+    print('update store table success!')
+
+def updateUserTableUp(inputList,disk):
+    fileList = []
+    username = inputList[1].split('/')[0]
+    filename = inputList[1].split('/')[1]
+
+    nowTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    if myGlobal.userDict.has_key(username):
+        fileList = myGlobal.userDict[username]
+        fileList.append(filename+' disk '+str(disk)+' '+nowTime)
+    else:
+        fileList.append(filename+' disk '+str(disk)+' '+nowTime)
+        myGlobal.userDict[username] = fileList
+    print('update user table success!')
+
+def updateNumberTableUp(disk):
+    number = 0
+    if myGlobal.numberDict.has_key(disk):
+        number = myGlobal.numberDict[disk]
+        myGlobal.numberDict[disk] = number+1
+    else:
+        myGlobal.numberDict[disk] = number+1
+
+def updateNumberTableDelete(originDisk, backupDisk):
+    number = 0
+
+    if originDisk == -1 and backupDisk == -1:
+        print('update number table fail!')
+        return False
+    elif originDisk == -1:
+        if myGlobal.numberDict.has_key(backupDisk)):
+            number = myGlobal.numberDict[backupDisk]
+            myGlobal.numberDict[backupDisk] = number-1
+    elif backupDisk == -1:
+        if myGlobal.numberDict.has_key(originDisk):
+            number = myGlobal.numberDict[originDisk]
+            myGlobal.numberDict[originDisk] = number-1
+    else:
+        if myGlobal.numberDict.has_key(backupDisk)):
+            number = myGlobal.numberDict[backupDisk]
+            myGlobal.numberDict[backupDisk] = number-1
+        if myGlobal.numberDict.has_key(originDisk):
+            number = myGlobal.numberDict[originDisk]
+            myGlobal.numberDict[originDisk] = number-1
+
+
+def updateStoreTableDelete(originDisk, backupDisk):
+    if originDisk == -1 and backupDisk == -1:
+        print('update store table fail!')
+        return False
+    elif originDisk == -1:
+        myGlobal.backupDict[inputList[1]] == -1
+    elif backupDisk == -1:
+        myGlobal.originDict[inputList[1]] == -1
+    else:
+        myGlobal.backupDict[inputList[1]] == -1
+        myGlobal.originDict[inputList[1]] == -1
+    print('update store table success!')
+    return True
+
+def updateUserTableDelete(inputList):
+    username = inputList[1].split('/')[0]
+    filename = inputList[1].split('/')[1]
+    fileList = []
+    if myGlobal.userDict.has_key(username):
+        fileList = myGlobal.userDict[username]
+        for file in fileList:
+            if file.split(' ')[0] == 'filename':
+                fileList.remove(file)
+        print('update user table success!')
+        return True
+    else:
+        myGlobal.userDict[username] = fileList
+        print('Cannot find User!')
+
+def searchOriginTable(inputList):
+    if myGlobal.originDict.has_key(inputList[1]):
+        return myGlobal.originDict[inputList[1]]
+    else:
+        return -1
+
+def searchBackupTable(inputList):
+    if myGlobal.backupDict.has_key(inputList[1]):
+        return myGlobal.backupDict[inputList[1]]
+    else:
+        return -1
+
+################################################################################
 ##def add(inputList, conn):
 def consistentHashing(name):
     print(name)
@@ -112,16 +277,11 @@ def consistentHashing(name):
         print('disk Four')
         return 3
 
-def findFile(name):
-    return consistentHashing(name)
-
 def getMD5SUM(name):
     myMd5 = hashlib.md5()
     myMd5.update(name)
     myMd5_Digest = myMd5.hexdigest()
     return myMd5_Digest
-
-
 
 
 ################################################################################
@@ -171,9 +331,7 @@ def startServer(mySocket):
                     wrongInput(conn)
                 elif (inputList[0] == 'upload'):
                     if(validateUp(inputList)):
-                        disk = upload(inputList,conn)
-                        print(inputList[1].split('/')[1] \
-                              +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
+                        upload(inputList,conn)
                 elif (inputList[0] == 'list'):
                     if(validateList(inputList)):
                         print(myList(inputList, conn))
