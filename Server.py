@@ -4,6 +4,7 @@ import sys
 import os
 import hashlib
 import math
+import datetime
 import myGlobal
 
 
@@ -77,26 +78,29 @@ def upload(inputList, conn):
 ################################################################################
 ## download
 def download(inputList, conn):
+    
     originDisk = searchOriginTable(inputList)
     backupDisk = searchBackupTable(inputList)
-    try:
-        if originDisk == -1 and backupDisk == -1:
-            print('Cannot find this file!')
-        elif originDisk == -1:
-            print('original Disk does not have this file')
-            print('backup file is on disk '+ backupDisk)
-        elif backupDisk == -1:
-            print('original file is on disk' + originDisk)
-            print('backup Disk does not have this file')
-        else:
-            print('original file is on disk' + originDisk)
-            print('backup file is on disk' + backupDisk)
-        result = str(originDisk)+' '+str(backupDisk)
-    except Excetion as e:
-        print(e)
+    print(originDisk, backupDisk)
+    if originDisk == -1 and backupDisk == -1:
+        print('Cannot find this file!')
+        result = '-1 -1'
+    elif originDisk == -1:
+        print('original Disk does not have this file')
+        print('backup file is on disk '+ str(backupDisk))
         result = '-1'
-    finally:
-        conn.send(result)
+        result +=' '+myGlobal.diskList[backupDisk]
+    elif backupDisk == -1:
+        print('original file is on disk' + str(originDisk))
+        print('backup Disk does not have this file')
+        result = myGloal.diskList[originDisk]
+        result += ' -1'
+    else:
+        print('original file is on disk' + str(originDisk))
+        print('backup file is on disk' + str(backupDisk))
+        result = myGlobal.diskList[originDisk]+' '+myGlobal.diskList[backupDisk]
+    print(result)
+    conn.send(result)
 
 ################################################################################
 ## delete
@@ -104,9 +108,10 @@ def delete(inputList, conn):
     conn.send('Do you really want to delete this file?')
     input = conn.recv(1024)
     ## lowercase
-    if input == yes or input == y:
+    if input == 'yes' or input == 'y':
         originDisk = searchOriginTable(inputList)
         backupDisk = searchBackupTable(inputList)
+        print(originDisk,backupDisk)
         try:
             updateTableDelete(originDisk, backupDisk, inputList)
             if originDisk == -1 and backupDisk == -1:
@@ -130,6 +135,7 @@ def delete(inputList, conn):
 def myList(inputList, conn):
     result = ''
     username = inputList[1]
+    fileList = []
     try:
         if myGlobal.userDict.has_key(username):
             fileList = myGlobal.userDict[username]
@@ -165,8 +171,9 @@ def updateTableUp(inputList, disk):
     updateNumberTableUp(disk+1)
 
 def updateTableDelete(originDisk, backupDisk, inputList):
-    result = updateStoreTableDelete()
-    result = result and updateUserTableDelete()
+    result = updateStoreTableDelete(originDisk,backupDisk,inputList)
+    result = result and updateUserTableDelete(inputList)
+    updateNumberTableDelete(originDisk, backupDisk)
     return result
 
 def updateStoreTableUp(inputList, disk):
@@ -204,7 +211,7 @@ def updateNumberTableDelete(originDisk, backupDisk):
         print('update number table fail!')
         return False
     elif originDisk == -1:
-        if myGlobal.numberDict.has_key(backupDisk)):
+        if myGlobal.numberDict.has_key(backupDisk):
             number = myGlobal.numberDict[backupDisk]
             myGlobal.numberDict[backupDisk] = number-1
     elif backupDisk == -1:
@@ -212,7 +219,7 @@ def updateNumberTableDelete(originDisk, backupDisk):
             number = myGlobal.numberDict[originDisk]
             myGlobal.numberDict[originDisk] = number-1
     else:
-        if myGlobal.numberDict.has_key(backupDisk)):
+        if myGlobal.numberDict.has_key(backupDisk):
             number = myGlobal.numberDict[backupDisk]
             myGlobal.numberDict[backupDisk] = number-1
         if myGlobal.numberDict.has_key(originDisk):
@@ -220,7 +227,7 @@ def updateNumberTableDelete(originDisk, backupDisk):
             myGlobal.numberDict[originDisk] = number-1
 
 
-def updateStoreTableDelete(originDisk, backupDisk):
+def updateStoreTableDelete(originDisk, backupDisk,inputList):
     if originDisk == -1 and backupDisk == -1:
         print('update store table fail!')
         return False
@@ -241,7 +248,7 @@ def updateUserTableDelete(inputList):
     if myGlobal.userDict.has_key(username):
         fileList = myGlobal.userDict[username]
         for file in fileList:
-            if file.split(' ')[0] == 'filename':
+            if file.split(' ')[0] == filename:
                 fileList.remove(file)
         print('update user table success!')
         return True
@@ -250,16 +257,28 @@ def updateUserTableDelete(inputList):
         print('Cannot find User!')
 
 def searchOriginTable(inputList):
-    if myGlobal.originDict.has_key(inputList[1]):
-        return myGlobal.originDict[inputList[1]]
-    else:
-        return -1
+    try:
+        if inputList[1] in myGlobal.originDict:
+            print('in')
+            disk = myGlobal.originDict[inputList[1]]
+            print(disk)
+            return disk
+        else:
+            return -1
+    except Exception as e:
+        print(e)
 
 def searchBackupTable(inputList):
-    if myGlobal.backupDict.has_key(inputList[1]):
-        return myGlobal.backupDict[inputList[1]]
-    else:
-        return -1
+    try:
+        if inputList[1] in myGlobal.backupDict:
+            print('in')
+            disk = myGlobal.backupDict[inputList[1]]
+            print(disk)
+            return disk
+        else:
+            return -1
+    except Exception as e:
+        print(e)
 
 ################################################################################
 ##def add(inputList, conn):
@@ -334,7 +353,7 @@ def startServer(mySocket):
                     wrongInput(conn)
                     return False
                 ## do all lowercase
-                print('input=',input)
+                print('input='+input)
                 if input == '':
                     break
                 inputList = input.rstrip().split(' ')
@@ -345,13 +364,13 @@ def startServer(mySocket):
                         upload(inputList,conn)
                 elif (inputList[0] == 'list'):
                     if(validateList(inputList)):
-                        print(myList(inputList, conn))
+                        myList(inputList, conn)
                 elif (inputList[0] == 'download'):
                     if(validateDown(inputList)):
-                        print(download(inputList, conn))
+                        download(inputList, conn)
                 elif (inputList[0] == 'delete'):
                     if(validateDelete(inputList)):
-                        print(delete(inputList, conn))
+                        delete(inputList, conn)
                 elif (inputList[0] == 'add'):
                     if(validateAdd(inputList)):
                         print(add(inputList, conn))
