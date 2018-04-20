@@ -66,9 +66,11 @@ def upload(inputList, conn):
             result = myGlobal.diskList[disk]
             print(inputList[1].split('/')[1] \
                   +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
-        conn.send(result)
     except Exception as e:
         print(e)
+        result = '-1'
+    finally:
+        conn.send(result)
 
 
 
@@ -90,9 +92,11 @@ def download(inputList, conn):
             print('original file is on disk' + originDisk)
             print('backup file is on disk' + backupDisk)
         result = str(originDisk)+' '+str(backupDisk)
-        conn.send(result)
     except Excetion as e:
         print(e)
+        result = '-1'
+    finally:
+        conn.send(result)
 
 ################################################################################
 ## delete
@@ -111,9 +115,11 @@ def delete(inputList, conn):
             else:
                 print('the file has been deleted successfully!')
                 result = '1'
-            conn.send(result)
         except Excetion as e:
             print(e)
+            result = '-1'
+        finally:
+            conn.send(result)
     else:
         print('The file has not been deleted!')
         conn.send('0')
@@ -124,18 +130,23 @@ def delete(inputList, conn):
 def myList(inputList, conn):
     result = ''
     username = inputList[1]
-    if myGlobal.userDict.has_key(username):
-        fileList = myGlobal.userDict[username]
-        print('Files are :')
-        for file in fileList:
-            result += file + '$'
-            print(file)
-        result = result.rstrip()
-    else:
-        myGlobal.userDict[username] = fileList
-        print('Cannot find User!')
-        result = '-1'
-    conn.send(result)
+    try:
+        if myGlobal.userDict.has_key(username):
+            fileList = myGlobal.userDict[username]
+            print('Files are :')
+            for file in fileList:
+                result += file + '$'
+                print(file)
+            result = result.rstrip()
+        else:
+            myGlobal.userDict[username] = fileList
+            print('Cannot find User!')
+            result = '-1'
+    except Exception as e:
+        print(e)
+        result = '-a'
+    finally:
+        conn.send(result)
 
 ################################################################################
 ## add
