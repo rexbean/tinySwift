@@ -1,4 +1,4 @@
-#!/usr/bin/python
+ #!/usr/bin/python
 import socket
 import sys
 import os
@@ -63,7 +63,7 @@ def upload(inputList, conn):
             print('A file with same has already existed!')
             result = '-1'
         else:
-            updateTableUp(inputList, disk)
+            updateTableUp(inputList[1], disk)
             result = myGlobal.diskList[disk]
             print(inputList[1].split('/')[1] \
                   +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
@@ -78,29 +78,32 @@ def upload(inputList, conn):
 ################################################################################
 ## download
 def download(inputList, conn):
-    
-    originDisk = searchOriginTable(inputList)
-    backupDisk = searchBackupTable(inputList)
-    print(originDisk, backupDisk)
-    if originDisk == -1 and backupDisk == -1:
-        print('Cannot find this file!')
-        result = '-1 -1'
-    elif originDisk == -1:
-        print('original Disk does not have this file')
-        print('backup file is on disk '+ str(backupDisk))
-        result = '-1'
-        result +=' '+myGlobal.diskList[backupDisk]
-    elif backupDisk == -1:
-        print('original file is on disk' + str(originDisk))
-        print('backup Disk does not have this file')
-        result = myGloal.diskList[originDisk]
-        result += ' -1'
-    else:
-        print('original file is on disk' + str(originDisk))
-        print('backup file is on disk' + str(backupDisk))
-        result = myGlobal.diskList[originDisk]+' '+myGlobal.diskList[backupDisk]
-    print(result)
-    conn.send(result)
+    try:
+        originDisk = searchOriginTable(inputList)
+        backupDisk = searchBackupTable(inputList)
+        print(originDisk, backupDisk)
+        if originDisk == -1 and backupDisk == -1:
+            print('Cannot find this file!')
+            result = '-1 -1'
+        elif originDisk == -1:
+            print('original Disk does not have this file')
+            print('backup file is on disk '+ str(backupDisk))
+            result = '-1'
+            result +=' '+myGlobal.diskList[backupDisk]
+        elif backupDisk == -1:
+            print('original file is on disk' + str(originDisk))
+            print('backup Disk does not have this file')
+            result = myGloal.diskList[originDisk]
+            result += ' -1'
+        else:
+            print('original file is on disk' + str(originDisk))
+            print('backup file is on disk' + str(backupDisk))
+            result = myGlobal.diskList[originDisk]+' '+myGlobal.diskList[backupDisk]
+    except Exception as e:
+        print(e)
+        result = e
+    finally:
+        conn.send(result)
 
 ################################################################################
 ## delete
@@ -156,19 +159,176 @@ def myList(inputList, conn):
 
 ################################################################################
 ## add
+def add(inputList,conn):
+    try:
+        ip = inputList[1]
+        if(validateIP(ip)):
+            # add new disk to the list
+            myGlobal.diskList.append[ip]
+            n = len(myGlobal.diskList)
+            result = moveOriginAdd(n)
+            result += moveBackupAdd(n)
+            result = result[:-1]
+        else:
+            result = 'invalid ip, please resend'
+            print(result)
+    except Exception as e:
+        print(e)
+        result = e
+    finally:
+        conn.send(result)
 
-# def add(inputList,conn):
+################################################################################
+## remove
+def remove(inputList, conn):
+    try:
+        result = ''
+        ip = inputList[1]
+        if(validate(ip)):
+            if ip in myGlobal.diskList:
+                result = moveRemove()
+            else:
+                result = 'ip does no in the disk list, please resend'
+                print(result)
+        else:
+            result = 'invalid ip, please resend'
+            print(result)
+    except Exception as e:
+        print(e)
+        result = e
+    finally:
+        conn.send(result)
 
+
+
+
+################################################################################
+
+def moveRemove():
+    disk = myGlobal.findDisk(ip)
+    n = len(myGlobal.diskList) - 1
+    numOrigin = myGlobal.numOriginDict[disk]
+    numBackup = myGlobal.numBackupDict[disk]
+
+    for i in range(0, n):
+        numToMoveOrigin[i] = numOrigin / n
+        numToMoveBackup[i] = numBackup / n
+
+    result = move(disk, myGlobal.originDict, myGlobal.backupDict, numToMoveOrigin)
+    result += move(disk, myGlobal.backupDict, myGlobal.originDict, numToMoveBackup)
+
+    return result[:-1]
+
+
+def findDisk(ip):
+    for i, disk in enumerate(myGlobal.diskList):
+        if disk == ip:
+            print(ip +'is the ip addr of the disk'+disk)
+            return i
+    return -1
+
+def move(disk, table, tableBackup, numToMove):
+    result = ''
+    index = 0
+    for path in table
+        if table[path] == disk:
+            if(tableBackup[path] != index):
+                if(numToMove[index] == 0):
+                    tmp = index + 1
+                    index += 1
+                else:
+                    tmp = index
+            else:
+                tmp = getNextDisk(index, n)
+            deleteStoreTable(table, path)
+            moveCommand(path, disk, tmp)
+            result += path+' '+disk+'$'
+            if table == myGlobal.originDict:
+                userTableRemove(path)
+                userTableAdd(path, tmp)
+            updateStoreTable(table, path, tmp)
+            numToMoveOrigin[tmp] -= 1
+    return result
+
+def getNextDisk(originDisk, n):
+    if originDisk + 1 == n:
+        return 0
+    else:
+        return originDisk + 1
+
+
+def moveOriginAdd(n):
+    originNumToMove = computeNumToMove(myGlobal.numOriginDict, n)
+    moveOriginToNewDisk(originNumToMove, n)
+    return result
+
+
+def moveBackupAdd(n):
+    backupNumToMove = computeNumToMove(myGlobal.numBackupDict, n)
+    moveBackupToNewDisk(backupNumToMove, n)
+    return result
+
+def moveOriginToNewDisk(numToMove, n):
+    table = myGlobal.originDict
+    count = n
+    for path in table:
+        disk = table[path]
+        if(numToMove[disk] > 0):
+            deleteStoreTable(table, path)
+            moveCommand(path, disk, n - 1)
+            updateStoreTable(table, path, n - 1)
+            userTableRemove(path)
+            userTableAdd(path, n - 1)
+            numToMove[disk] -= 1
+        elif numToMove[disk] == 0:
+            count= count - 1
+
+        if(count == 0):
+            break
+
+def moveBackupToNewDisk(numToMove,n):
+    table = myGlobal.backupDict
+    count = n
+    for path in table:
+        disk = table[path]
+        if(numToMove[disk] > 0):
+            # prevent the original and backup in the same disk
+            if(myGlobal.originDict[path] == n - 1 ):
+                continue
+            deleteStoreTable(table, path)
+            moveCommand(path, disk, n - 1)
+            updateStoreTable(table, path, n - 1)
+            numToMove[disk] -= 1
+        elif numToMove[disk] == 0:
+            count= count - 1
+
+        if(count == 0):
+            break
+
+def computeNumToMove(table, n):
+    numToMove = []
+    for i, num in enumerate(table):
+        numToMove[i] = table[i]/ n
+    return numToMove
+
+
+def moveCommand(path, source, destination):
+    root = '/tmp/'+loginName+'/'
+    directory = '/tmp/'+loginName+'/'+username+'/'
+    cMkdir = 'ssh '+ destination + ' mkdir -p '+ directory
+    r = os.system(cMkdir)
+    command = 'scp -B '+source+':'+root+path+' '+destination+':'+directory
+    result = os.system(command)
 
 
 ################################################################################
 ## manipulate table
 
 def updateTableUp(inputList, disk):
-    updateStoreTableUp(inputList, disk)
+    updateStoreTableUp(inputList, disk, disk + 1)
     updateUserTableUp(inputList, disk)
     updateNumberTableUp(disk)
-    updateNumberTableUp(disk+1)
+
 
 def updateTableDelete(originDisk, backupDisk, inputList):
     result = updateStoreTableDelete(originDisk,backupDisk,inputList)
@@ -176,76 +336,70 @@ def updateTableDelete(originDisk, backupDisk, inputList):
     updateNumberTableDelete(originDisk, backupDisk)
     return result
 
-def updateStoreTableUp(inputList, disk):
-    myGlobal.originDict[inputList[1]] = disk
-    myGlobal.backupDict[inputList[1]] = disk + 1
+
+
+
+
+## update store table
+def updateStoreTableUp(inputList, originDisk, backupDisk):
+    updateStoreTable(myGlobal.originDict, inputList[1], originDisk)
+    updateStoreTable(myGlobal.backupDict, inputList[1], backupDisk)
     print('update store table success!')
 
-def updateUserTableUp(inputList,disk):
-    fileList = []
-    username = inputList[1].split('/')[0]
-    filename = inputList[1].split('/')[1]
 
-    nowTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    if myGlobal.userDict.has_key(username):
-        fileList = myGlobal.userDict[username]
-        fileList.append(filename+' disk '+str(disk)+' '+nowTime)
+def updateStoreTableDelete(inputList, originDisk, backupDisk):
+    if originDisk == -1 and backupDisk == -1:
+        print('update store table fail!')
+        return False
     else:
-        fileList.append(filename+' disk '+str(disk)+' '+nowTime)
-        myGlobal.userDict[username] = fileList
-    print('update user table success!')
+        deleteStoreTable(myGlobal.originDict, inputList[1])
+        deleteStoreTable(myGlobal.backupDict, inputList[1])
+    print('update store table success!')
+    return True
 
+
+def deleteStoreTable(table, path):
+    table.remove(path)
+    print(path+'has been removed')
+
+def updateStoreTable(table, path, disk):
+    table[path] = disk
+    print(path+'has been saved on disk'+ disk)
+
+
+
+## update number table
 def updateNumberTableUp(disk):
-    number = 0
-    if myGlobal.numberDict.has_key(disk):
-        number = myGlobal.numberDict[disk]
-        myGlobal.numberDict[disk] = number+1
-    else:
-        myGlobal.numberDict[disk] = number+1
+    updateNumberTable(myGlobal.numOriginDict, disk, 1)
+    updateNumberTable(myGlobal.numBackupDict, disk + 1, 1)
 
 def updateNumberTableDelete(originDisk, backupDisk):
-    number = 0
-
     if originDisk == -1 and backupDisk == -1:
         print('update number table fail!')
         return False
     elif originDisk == -1:
-        if myGlobal.numberDict.has_key(backupDisk):
-            number = myGlobal.numberDict[backupDisk]
-            myGlobal.numberDict[backupDisk] = number-1
+        updateNumberTable(myGlobal.numBackupDict, backupDisk, -1)
     elif backupDisk == -1:
-        if myGlobal.numberDict.has_key(originDisk):
-            number = myGlobal.numberDict[originDisk]
-            myGlobal.numberDict[originDisk] = number-1
+        updateNumberTable(myGlobal.numOriginDict, originDisk, -1)
     else:
-        if myGlobal.numberDict.has_key(backupDisk):
-            number = myGlobal.numberDict[backupDisk]
-            myGlobal.numberDict[backupDisk] = number-1
-        if myGlobal.numberDict.has_key(originDisk):
-            number = myGlobal.numberDict[originDisk]
-            myGlobal.numberDict[originDisk] = number-1
+        updateNumberTable(myGlobal.numBackupDict, backupDisk, -1)
+        updateNumberTable(myGlobal.numOriginDict, originDisk, -1)
 
-
-def updateStoreTableDelete(originDisk, backupDisk,inputList):
-    if originDisk == -1 and backupDisk == -1:
-        print('update store table fail!')
-        return False
-    elif originDisk == -1:
-        myGlobal.backupDict[inputList[1]] == -1
-    elif backupDisk == -1:
-        myGlobal.originDict[inputList[1]] == -1
+def updateNumberTable(table, disk , value):
+    number = 0
+    if disk in table:
+        number = table[disk]
+        table[disk] = number + value
     else:
-        myGlobal.backupDict[inputList[1]] == -1
-        myGlobal.originDict[inputList[1]] == -1
-    print('update store table success!')
-    return True
+        table[disk] = number + value
 
-def updateUserTableDelete(inputList):
-    username = inputList[1].split('/')[0]
-    filename = inputList[1].split('/')[1]
+
+##user table
+def userTableRemove(path):
     fileList = []
-    if myGlobal.userDict.has_key(username):
+    username = path.split('/')[0]
+    filename = path.split('/')[1]
+    if username in myGlobal.userDict:
         fileList = myGlobal.userDict[username]
         for file in fileList:
             if file.split(' ')[0] == filename:
@@ -255,6 +409,30 @@ def updateUserTableDelete(inputList):
     else:
         myGlobal.userDict[username] = fileList
         print('Cannot find User!')
+
+def userTableAdd(path, disk):
+    fileList = []
+    username = path.split('/')[0]
+    filename = path.split('/')[1]
+    nowTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    if myGlobal.userDict.has_key(username):
+        fileList = myGlobal.userDict[username]
+        fileList.append(filename+' disk '+str(disk)+' '+nowTime)
+    else:
+        fileList.append(filename+' disk '+str(disk)+' '+nowTime)
+        myGlobal .userDict[username] = fileList
+    print('update user table success!')
+
+def updateUserTableDelete(inputList):
+    userTableRemove(inputList[1], filename)
+
+
+def updateUserTableUp(inputList,disk):
+    userTableAdd(inputList[1], disk)
+
+
+
 
 def searchOriginTable(inputList):
     try:
@@ -322,6 +500,8 @@ def getServerInfo():
     # get server IP
     serverIP = socket.gethostbyname(HostName)
 
+    myGlobal.loginName = os.popen('whoami').read()
+
     return HostName, serverIP
 
 def findAvailablePort(serverIP):
@@ -362,21 +542,33 @@ def startServer(mySocket):
                 elif (inputList[0] == 'upload'):
                     if(validateUp(inputList)):
                         upload(inputList,conn)
+                    else:
+                        wrongInput(conn)
                 elif (inputList[0] == 'list'):
                     if(validateList(inputList)):
                         myList(inputList, conn)
+                    else:
+                        wrongInput(conn)
                 elif (inputList[0] == 'download'):
                     if(validateDown(inputList)):
                         download(inputList, conn)
+                    else:
+                        wrongInput(conn)
                 elif (inputList[0] == 'delete'):
                     if(validateDelete(inputList)):
                         delete(inputList, conn)
+                    else:
+                        wrongInput(conn)
                 elif (inputList[0] == 'add'):
                     if(validateAdd(inputList)):
                         print(add(inputList, conn))
+                    else:
+                        wrongInput(conn)
                 elif (inputList[0] == 'remove'):
                     if(validateRemove(inputList)):
                         print(remove(inputList, conn))
+                    else:
+                        wrongInput(conn)
                 elif (inputList[0] == 'end'):
                     closeServer(conn)
                     return True

@@ -67,7 +67,7 @@ def download(input, mySocket):
     try:
         mySocket.send(input)
         ip = mySocket.recv(1024)
-            
+
         username = input.split(' ')[1].split('/')[0]
         filename = input.split(' ')[1].split('/')[1]
         directory = '/tmp/'+loginName+'/'+username+'/'
@@ -107,7 +107,7 @@ def delete(input, mySocket):
             print('delete fail!')
     except Exception as e:
         print(e)
-        
+
 ################################################################################
 ## list
 def myList(input, mySocket):
@@ -124,6 +124,38 @@ def myList(input, mySocket):
                     print(fileList[length - 1 - i])
         else:
             print('Do not have this user!')
+    except Exception as e:
+        print(e)
+
+################################################################################
+## add
+def add(input, mySocket):
+    try:
+        ip = input.split(' ')[1]
+        if validateIP(ip) == False:
+            print('The IP is invalid')
+        else:
+            mySocket.send(input)
+            files = mySocket.recv[1024]
+            fileList = files.split('$')
+            for file in fileList:
+                print(file)
+    except Exception as e:
+        print(e)
+
+################################################################################
+## remove
+def remove(input, mySocket):
+    try:
+        ip = input.split(' ')[1]
+        if validateIP(ip) == False:
+            print('The IP is invalid')
+        else:
+            mySocket.send(input)
+            files = mySocket.recv[1024]
+            fileList = files.split('$')
+            for file in fileList:
+                print(file)
     except Exception as e:
         print(e)
 
@@ -210,22 +242,33 @@ if __name__ == '__main__':
         if(inputList[0] == 'upload'):
             if(validateUp(inputList)):
                 upload(input,mySocket)
-
+            else:
+                wrongInput()
         elif (inputList[0] == 'list'):
             if(validateList(inputList)):
                 myList(input, mySocket)
+            else:
+                wrongInput()
         elif (inputList[0] == 'download'):
             if(validateDown(inputList)):
                 download(input, mySocket)
+            else:
+                wrongInput()
         elif (inputList[0] == 'delete'):
             if(validateDelete(inputList)):
                 delete(input, mySocket)
+            else:
+                wrongInput()
         elif (inputList[0] == 'add'):
             if(validateAdd(inputList)):
-                print(add(input, conn))
+                add(input, conn)
+            else:
+                wrongInput()
         elif (inputList[0] == 'remove'):
             if(validateRemove(inputList)):
-                print(remove(inputList, conn))
+                remove(input, conn)
+            else:
+                wrongInput()
         elif (inputList[0] == 'end'):
             closeServer(conn)
         else:
