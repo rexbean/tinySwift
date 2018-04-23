@@ -331,6 +331,7 @@ def moveCommand(path, source, destination):
     cMkdir = 'ssh '+ destination + ' mkdir -p '+ directory
     r = os.system(cMkdir)
     command = 'scp -B '+source+':'+root+path+' '+destination+':'+directory
+    print('command='+command)
     result = os.system(command)
 
 
@@ -489,16 +490,12 @@ def consistentHashing(name):
     except Exception as e:
         print(e)
     if(i_code >= 0 and i_code < piece):
-        print('disk Zero')
         return 0
     elif(i_code >= piece and i_code < 2 * piece ):
-        print('disk One')
         return 1
     elif(i_code >= 2 * piece and i_code < 3 * piece):
-        print('disk Two')
         return 2
     elif(i_code >= 3 * piece and i_code < 4 * piece):
-        print('disk Three')
         return 3
 
 def getMD5SUM(name):
