@@ -232,8 +232,15 @@ if __name__ == '__main__':
     print('serverIp = '+IP+' port = ' + str(port))
     mySocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mySocket.connect((IP,port))
-    while 1:
-        input = raw_input("Please input cmd:")
+    command=[]
+    f = open('t14.dat')
+    for line in f:
+        print(line.strip())
+        command.append(line.rstrip())
+    f.close()
+    #while 1:
+    for input in command:
+        #input = raw_input("Please input cmd:")
         #all lowercase
         inputList = input.rstrip().split(' ')
         if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
