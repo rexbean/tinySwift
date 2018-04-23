@@ -318,7 +318,8 @@ def computeNumToMove(table, n):
     print(table)
     numToMove = []
     for i, num in enumerate(table):
-        numToMove.append(table[i]/n)
+        if i in table:
+            numToMove.append(table[i]/n)
     print('has computed num to move')
     return numToMove
 
