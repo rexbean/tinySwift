@@ -235,7 +235,6 @@ if __name__ == '__main__':
     command=[]
     f = open('t14.dat')
     for line in f:
-        print(line.strip())
         command.append(line.rstrip())
     f.close()
     #while 1:

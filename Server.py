@@ -140,7 +140,7 @@ def myList(inputList, conn):
     username = inputList[1]
     fileList = []
     try:
-        if myGlobal.userDict.has_key(username):
+        if username in myGlobal.userDict:
             fileList = myGlobal.userDict[username]
             print('Files are :')
             for file in fileList:
@@ -324,6 +324,8 @@ def computeNumToMove(table, n):
 
 
 def moveCommand(path, source, destination):
+    username = path.split('/')[0]
+    filename = path.split('/')[1]
     root = '/tmp/'+loginName+'/'
     directory = '/tmp/'+loginName+'/'+username+'/'
     cMkdir = 'ssh '+ destination + ' mkdir -p '+ directory
