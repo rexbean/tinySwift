@@ -64,7 +64,7 @@ def upload(inputList, conn):
             result = '-1'
         else:
             updateTableUp(inputList, disk)
-            result = myGlobal.diskList[disk]+' '+myGlobal.diskList[getNextDisk[disk]]
+            result = myGlobal.diskList[disk]+' '+myGlobal.diskList[getNextDisk(disk,len(myGlobal.diskList)]
             print(inputList[1].split('/')[1] \
                   +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
     except Exception as e:
@@ -350,7 +350,7 @@ def moveCommand(path, source, destination):
 ## manipulate table
 
 def updateTableUp(inputList, disk):
-    updateStoreTableUp(inputList, disk, getNextDisk(disk))
+    updateStoreTableUp(inputList, disk, getNextDisk(disk,len(myGlobal.diskList)))
     updateUserTableUp(inputList, disk)
     updateNumberTableUp(disk)
 
@@ -402,7 +402,7 @@ def updateStoreTable(table, path, disk):
 ## update number table
 def updateNumberTableUp(disk):
     updateNumberTable(myGlobal.numOriginDict, disk, 1)
-    updateNumberTable(myGlobal.numBackupDict, getNextDisk(disk), 1)
+    updateNumberTable(myGlobal.numBackupDict, getNextDisk(disk,len(myGlobal.diskList), 1)
 
 def updateNumberTableDelete(originDisk, backupDisk):
     if originDisk == -1 and backupDisk == -1:
