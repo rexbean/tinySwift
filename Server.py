@@ -64,7 +64,7 @@ def upload(inputList, conn):
             result = '-1'
         else:
             updateTableUp(inputList, disk)
-            result = myGlobal.diskList[disk]+' '+myGlobal.diskList[getNextDisk(disk,len(myGlobal.diskList)]
+            result = myGlobal.diskList[disk]+' '+myGlobal.diskList[getNextDisk(disk,len(myGlobal.diskList))]
             print(inputList[1].split('/')[1] \
                   +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
     except Exception as e:
