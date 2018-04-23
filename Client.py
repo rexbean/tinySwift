@@ -142,7 +142,7 @@ def add(input, mySocket):
             print('The IP is invalid')
         else:
             mySocket.send(input)
-            files = mySocket.recv[1024]
+            files = mySocket.recv(1024)
             fileList = files.split('$')
             for file in fileList:
                 print(file)
@@ -158,7 +158,7 @@ def remove(input, mySocket):
             print('The IP is invalid')
         else:
             mySocket.send(input)
-            files = mySocket.recv[1024]
+            files = mySocket.recv(1024)
             fileList = files.split('$')
             for file in fileList:
                 print(file)
