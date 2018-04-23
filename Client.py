@@ -45,7 +45,7 @@ def validateFile(inputList):
 def upload(input, mySocket):
     mySocket.send(input)
     ipList = mySocket.recv(1024)
-    if ip == '-1':
+    if ipList == '-1':
         print('upload fail! File has already existed!')
     else:
         username = input.split(' ')[1].split('/')[0]
