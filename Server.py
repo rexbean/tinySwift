@@ -326,8 +326,8 @@ def computeNumToMove(table, n):
 def moveCommand(path, source, destination):
     username = path.split('/')[0]
     filename = path.split('/')[1]
-    root = '/tmp/'+loginName+'/'
-    directory = '/tmp/'+loginName+'/'+username+'/'
+    root = '/tmp/'+myGlobal.loginName+'/'
+    directory = '/tmp/'+myGlobal.loginName+'/'+username+'/'
     cMkdir = 'ssh '+ destination + ' mkdir -p '+ directory
     r = os.system(cMkdir)
     command = 'scp -B '+source+':'+root+path+' '+destination+':'+directory
@@ -482,17 +482,12 @@ def searchBackupTable(inputList):
 ################################################################################
 ##def add(inputList, conn):
 def consistentHashing(name):
-    print(name)
     code = getMD5SUM(name)
-    print('0x'+code)
     i_code = int(code, 16) >> 112
-    print(hex(i_code))
-    print(myGlobal.partitionPower)
     try:
         piece = math.pow(2,(float)(myGlobal.partitionPower))/4
     except Exception as e:
         print(e)
-    print('piece:',piece)
     if(i_code >= 0 and i_code < piece):
         print('disk Zero')
         return 0
