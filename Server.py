@@ -292,7 +292,7 @@ def moveOriginToNewDisk(numToMove, n):
             userTableAdd(path, n - 1)
             numToMove[disk] -= 1
         elif numToMove[disk] == 0:
-            print('count='+count)
+            print('count=',count)
             count= count - 1
         if(count == 0):
             break
@@ -318,7 +318,7 @@ def moveBackupToNewDisk(numToMove,n):
             updateStoreTable(table, path, n - 1)
             numToMove[disk] -= 1
         elif numToMove[disk] == 0:
-            print('count='+count)
+            print('count=',count)
             count= count - 1
 
         if(count == 0):

@@ -50,12 +50,12 @@ def upload(input, mySocket):
     else:
         username = input.split(' ')[1].split('/')[0]
         filename = input.split(' ')[1].split('/')[1]
-        ip = ipList.splir(' ')[0]
+        ip = ipList.split(' ')[0]
         ipBackup = ipList.split(' ')[1]
         up(ip,username, filename)
         up(ipBackup,username, filename)
 
-def up(ip):
+def up(ip, username, filename):
     try:
         server = loginName+'@'+ip
         directory = '/tmp/'+loginName+'/'+username+'/'
