@@ -243,9 +243,8 @@ if __name__ == '__main__':
     for line in f:
         command.append(line.rstrip())
     f.close()
-    #while 1:
-    for input in command:
-        #input = raw_input("Please input cmd:")
+    while 1:
+        input = raw_input("Please input cmd:")
         #all lowercase
         inputList = input.rstrip().split(' ')
         if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
