@@ -64,7 +64,7 @@ def upload(inputList, conn):
             result = '-1'
         else:
             updateTableUp(inputList, disk)
-            result = myGlobal.diskList[disk]
+            result = myGlobal.diskList[disk]+' '+myGlobal.diskList[getNextDisk[disk]]
             print(inputList[1].split('/')[1] \
                   +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
     except Exception as e:
@@ -275,10 +275,15 @@ def moveOriginToNewDisk(numToMove, n):
     print('moveOriginToNewDisk')
     result = ''
     table = myGlobal.originDict
-    count = n
+    count = 0
+    for i in numToMove:
+        if i > 0:
+            count += 1
+
     for path in table:
         disk = table[path]
         if(numToMove[disk] > 0):
+            print(str(disk),numToMove[disk])
             deleteStoreTable(table, path)
             moveCommand(path, myGlobal.diskList[disk], myGlobal.diskList[n - 1])
             updateStoreTable(table, path, n - 1)
@@ -287,6 +292,7 @@ def moveOriginToNewDisk(numToMove, n):
             userTableAdd(path, n - 1)
             numToMove[disk] -= 1
         elif numToMove[disk] == 0:
+            print('count='+count)
             count= count - 1
         if(count == 0):
             break
@@ -296,10 +302,14 @@ def moveOriginToNewDisk(numToMove, n):
 def moveBackupToNewDisk(numToMove,n):
     print('moveBackupToNewDisk')
     table = myGlobal.backupDict
-    count = n
+    count = 0
+    for i in numToMove:
+        if i > 0:
+            count += 1
     for path in table:
         disk = table[path]
         if(numToMove[disk] > 0):
+            print(str(disk),numToMove[disk])
             # prevent the original and backup in the same disk
             if(myGlobal.originDict[path] == n - 1 ):
                 continue
@@ -308,6 +318,7 @@ def moveBackupToNewDisk(numToMove,n):
             updateStoreTable(table, path, n - 1)
             numToMove[disk] -= 1
         elif numToMove[disk] == 0:
+            print('count='+count)
             count= count - 1
 
         if(count == 0):
@@ -332,7 +343,6 @@ def moveCommand(path, source, destination):
     cMkdir = 'ssh '+ destination + ' mkdir -p '+ directory
     r = os.system(cMkdir)
     command = 'scp -B '+source+':'+root+path+' '+destination+':'+directory
-    print('command='+command)
     result = os.system(command)
 
 
@@ -340,7 +350,7 @@ def moveCommand(path, source, destination):
 ## manipulate table
 
 def updateTableUp(inputList, disk):
-    updateStoreTableUp(inputList, disk, disk + 1)
+    updateStoreTableUp(inputList, disk, getNextDisk(disk))
     updateUserTableUp(inputList, disk)
     updateNumberTableUp(disk)
 
@@ -392,7 +402,7 @@ def updateStoreTable(table, path, disk):
 ## update number table
 def updateNumberTableUp(disk):
     updateNumberTable(myGlobal.numOriginDict, disk, 1)
-    updateNumberTable(myGlobal.numBackupDict, disk + 1, 1)
+    updateNumberTable(myGlobal.numBackupDict, getNextDisk(disk), 1)
 
 def updateNumberTableDelete(originDisk, backupDisk):
     if originDisk == -1 and backupDisk == -1:
@@ -638,6 +648,11 @@ def getInput():
         line = sys.stdin.readline().rstrip()
     return inputs.rstrip()
 
+def InitialTable():
+    for i in range(0,4)
+        myGlobal.numOriginDict[i] = 0
+        myGlobal.numBackupDict[i] = 0
+
 ################################################################################
 ## main function
 if __name__ == '__main__':
@@ -655,6 +670,7 @@ if __name__ == '__main__':
     myGlobal.diskList = HDIPList
     myGlobal.serverIP = serverIP
     myGlobal.hostname = HostName
+    InitialTable()
 
     # get availablePort
     mySocket = findAvailablePort(serverIP)

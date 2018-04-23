@@ -44,22 +44,28 @@ def validateFile(inputList):
 ## upload
 def upload(input, mySocket):
     mySocket.send(input)
-    ip = mySocket.recv(1024)
+    ipList = mySocket.recv(1024)
     if ip == '-1':
         print('upload fail! File has already existed!')
     else:
         username = input.split(' ')[1].split('/')[0]
         filename = input.split(' ')[1].split('/')[1]
-        try:
-            server = loginName+'@'+ip
-            directory = '/tmp/'+loginName+'/'+username+'/'
-            r = os.system('ssh '+ server +' mkdir -p '+directory)
-            command = 'scp -B '+ filename +' '+server+':'+directory
-            result = os.system(command)
-            print(inputList[1].split('/')[1] \
-              +' has upload to '+ip)
-        except Exception as e:
-            print(e)
+        ip = ipList.splir(' ')[0]
+        ipBackup = ipList.split(' ')[1]
+        up(ip,username, filename)
+        up(ipBackup,username, filename)
+
+def up(ip):
+    try:
+        server = loginName+'@'+ip
+        directory = '/tmp/'+loginName+'/'+username+'/'
+        r = os.system('ssh '+ server +' mkdir -p '+directory)
+        command = 'scp -B '+ filename +' '+server+':'+directory
+        result = os.system(command)
+        print(inputList[1].split('/')[1] \
+          +' has upload to '+ip)
+    except Exception as e:
+        print(e)
 
 ################################################################################
 ## download
