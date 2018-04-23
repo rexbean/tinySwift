@@ -1,5 +1,7 @@
 diskList = []  ## list of disk
 loginName = ''
+serverIP = ''
+hostName = ''
 partitionPower = 0
 # info of the file
 originDict = {}

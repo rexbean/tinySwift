@@ -119,7 +119,7 @@ def myList(input, mySocket):
             print(username+'has files:')
             fileList = files.split('$')
             length = len(fileList)
-            for i in range(0,length):
+            for i in range(1,length):
                 if(fileList[length - 1 - i]!=''):
                     print(fileList[length - 1 - i])
         else:
@@ -218,7 +218,7 @@ def validateIP(IP):
             subInt = int(subList[3])
         except:
             return False
-        result = result and (subInt >= 80 and subInt <= 100)
+        result = result and (subInt >= 60 and subInt < 100)
         return result
 
 ################################################################################
@@ -261,16 +261,16 @@ if __name__ == '__main__':
                 wrongInput()
         elif (inputList[0] == 'add'):
             if(validateAdd(inputList)):
-                add(input, conn)
+                add(input, mySocket)
             else:
                 wrongInput()
         elif (inputList[0] == 'remove'):
             if(validateRemove(inputList)):
-                remove(input, conn)
+                remove(input, mySocket)
             else:
                 wrongInput()
         elif (inputList[0] == 'end'):
-            closeServer(conn)
+            closeServer(mySocket)
         else:
             wrongInput()
 

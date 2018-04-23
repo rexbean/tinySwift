@@ -63,7 +63,7 @@ def upload(inputList, conn):
             print('A file with same has already existed!')
             result = '-1'
         else:
-            updateTableUp(inputList[1], disk)
+            updateTableUp(inputList, disk)
             result = myGlobal.diskList[disk]
             print(inputList[1].split('/')[1] \
                   +' will upload to disk'+ str(disk)+' : '+myGlobal.diskList[disk])
@@ -114,7 +114,7 @@ def delete(inputList, conn):
     if input == 'yes' or input == 'y':
         originDisk = searchOriginTable(inputList)
         backupDisk = searchBackupTable(inputList)
-        print(originDisk,backupDisk)
+        #print(originDisk,backupDisk)
         try:
             updateTableDelete(originDisk, backupDisk, inputList)
             if originDisk == -1 and backupDisk == -1:
@@ -136,7 +136,7 @@ def delete(inputList, conn):
 ## list
 
 def myList(inputList, conn):
-    result = ''
+    result = '$'
     username = inputList[1]
     fileList = []
     try:
@@ -162,9 +162,9 @@ def myList(inputList, conn):
 def add(inputList,conn):
     try:
         ip = inputList[1]
-        if(validateIP(ip)):
+        if(validateIP(myGlobal.serverIP,ip)):
             # add new disk to the list
-            myGlobal.diskList.append[ip]
+            myGlobal.diskList.append(ip)
             n = len(myGlobal.diskList)
             result = moveOriginAdd(n)
             result += moveBackupAdd(n)
@@ -173,7 +173,7 @@ def add(inputList,conn):
             result = 'invalid ip, please resend'
             print(result)
     except Exception as e:
-        print(e)
+        print('add',e)
         result = e
     finally:
         conn.send(result)
@@ -184,7 +184,7 @@ def remove(inputList, conn):
     try:
         result = ''
         ip = inputList[1]
-        if(validate(ip)):
+        if(validate(myGlobal.serverIP,ip)):
             if ip in myGlobal.diskList:
                 result = moveRemove()
             else:
@@ -230,7 +230,7 @@ def findDisk(ip):
 def move(disk, table, tableBackup, numToMove):
     result = ''
     index = 0
-    for path in table
+    for path in table:
         if table[path] == disk:
             if(tableBackup[path] != index):
                 if(numToMove[index] == 0):
@@ -259,16 +259,16 @@ def getNextDisk(originDisk, n):
 
 def moveOriginAdd(n):
     originNumToMove = computeNumToMove(myGlobal.numOriginDict, n)
-    moveOriginToNewDisk(originNumToMove, n)
-    return result
+    result =  moveOriginToNewDisk(originNumToMove, n)
+    return result[:-1]
 
 
 def moveBackupAdd(n):
     backupNumToMove = computeNumToMove(myGlobal.numBackupDict, n)
     moveBackupToNewDisk(backupNumToMove, n)
-    return result
 
 def moveOriginToNewDisk(numToMove, n):
+    result = ''
     table = myGlobal.originDict
     count = n
     for path in table:
@@ -277,14 +277,15 @@ def moveOriginToNewDisk(numToMove, n):
             deleteStoreTable(table, path)
             moveCommand(path, disk, n - 1)
             updateStoreTable(table, path, n - 1)
+            result+= path +' ' + (n-1)+'$'
             userTableRemove(path)
             userTableAdd(path, n - 1)
             numToMove[disk] -= 1
         elif numToMove[disk] == 0:
             count= count - 1
-
         if(count == 0):
             break
+    return result
 
 def moveBackupToNewDisk(numToMove,n):
     table = myGlobal.backupDict
@@ -308,7 +309,8 @@ def moveBackupToNewDisk(numToMove,n):
 def computeNumToMove(table, n):
     numToMove = []
     for i, num in enumerate(table):
-        numToMove[i] = table[i]/ n
+        numToMove.append(table[i]/n)
+    print('has computed num to move')
     return numToMove
 
 
@@ -331,7 +333,7 @@ def updateTableUp(inputList, disk):
 
 
 def updateTableDelete(originDisk, backupDisk, inputList):
-    result = updateStoreTableDelete(originDisk,backupDisk,inputList)
+    result = updateStoreTableDelete(inputList, originDisk,backupDisk)
     result = result and updateUserTableDelete(inputList)
     updateNumberTableDelete(originDisk, backupDisk)
     return result
@@ -348,23 +350,29 @@ def updateStoreTableUp(inputList, originDisk, backupDisk):
 
 
 def updateStoreTableDelete(inputList, originDisk, backupDisk):
-    if originDisk == -1 and backupDisk == -1:
-        print('update store table fail!')
-        return False
-    else:
-        deleteStoreTable(myGlobal.originDict, inputList[1])
-        deleteStoreTable(myGlobal.backupDict, inputList[1])
-    print('update store table success!')
-    return True
+    try:
+        if originDisk == -1 and backupDisk == -1:
+            print('update store table fail!')
+            return False
+        else:
+            deleteStoreTable(myGlobal.originDict, inputList[1])
+            deleteStoreTable(myGlobal.backupDict, inputList[1])
+            print('update store table success!')
+            return True
+    except Exception as e:
+        print('updateStoreTableDelete',e)
 
 
 def deleteStoreTable(table, path):
-    table.remove(path)
-    print(path+'has been removed')
+    try:
+        del table[path]
+        print(path+' has been removed')
+    except Exception as e:
+        print('deleteStoreTable',e)
 
 def updateStoreTable(table, path, disk):
     table[path] = disk
-    print(path+'has been saved on disk'+ disk)
+    print(path+' has been saved on disk'+ str(disk))
 
 
 
@@ -397,6 +405,7 @@ def updateNumberTable(table, disk , value):
 ##user table
 def userTableRemove(path):
     fileList = []
+    print(path)
     username = path.split('/')[0]
     filename = path.split('/')[1]
     if username in myGlobal.userDict:
@@ -412,11 +421,12 @@ def userTableRemove(path):
 
 def userTableAdd(path, disk):
     fileList = []
+    print(path)
     username = path.split('/')[0]
     filename = path.split('/')[1]
     nowTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    if myGlobal.userDict.has_key(username):
+    if username in myGlobal.userDict:
         fileList = myGlobal.userDict[username]
         fileList.append(filename+' disk '+str(disk)+' '+nowTime)
     else:
@@ -425,7 +435,7 @@ def userTableAdd(path, disk):
     print('update user table success!')
 
 def updateUserTableDelete(inputList):
-    userTableRemove(inputList[1], filename)
+    userTableRemove(inputList[1])
 
 
 def updateUserTableUp(inputList,disk):
@@ -468,7 +478,7 @@ def consistentHashing(name):
     print(hex(i_code))
     print(myGlobal.partitionPower)
     try:
-        piece = math.pow(2,(float)(myGlobal.partitionPower))
+        piece = math.pow(2,(float)(myGlobal.partitionPower))/4
     except Exception as e:
         print(e)
     print('piece:',piece)
@@ -482,7 +492,7 @@ def consistentHashing(name):
         print('disk Two')
         return 2
     elif(i_code >= 3 * piece and i_code < 4 * piece):
-        print('disk Four')
+        print('disk Three')
         return 3
 
 def getMD5SUM(name):
@@ -615,7 +625,7 @@ def validateIP(serverIP, IP):
             subSInt = int(subSList[3])
         except:
             return False
-        result = result and (subInt >= 80 and subInt < 100 and subInt != subSInt)
+        result = result and (subInt >= 60 and subInt < 100 and subInt != subSInt)
         return result
 
 def getInput():
@@ -642,6 +652,8 @@ if __name__ == '__main__':
 
     myGlobal.partitionPower = partitionPower
     myGlobal.diskList = HDIPList
+    myGlobal.serverIP = serverIP
+    myGlobal.hostname = HostName
 
     # get availablePort
     mySocket = findAvailablePort(serverIP)

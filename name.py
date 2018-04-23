@@ -1,6 +1,6 @@
 import math
 import hashlib
-
+import sys
 
 
 
@@ -10,9 +10,9 @@ def consistentHashing(name):
     print('0x'+code)
     i_code = int(code, 16) >> 112
     print(hex(i_code))
-    print(myGlobal.partitionPower)
+    print(i_code)
     try:
-        piece = math.pow(2,(float)(myGlobal.partitionPower))
+        piece = math.pow(2,16.0)/4
     except Exception as e:
         print(e)
     print('piece:',piece)
@@ -26,7 +26,7 @@ def consistentHashing(name):
         print('disk Two')
         return 2
     elif(i_code >= 3 * piece and i_code < 4 * piece):
-        print('disk Four')
+        print('disk Three')
         return 3
 
 def getMD5SUM(name):
