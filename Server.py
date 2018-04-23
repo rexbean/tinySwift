@@ -243,7 +243,7 @@ def move(disk, table, tableBackup, numToMove):
                 tmp = getNextDisk(index, n)
             deleteStoreTable(table, path)
             moveCommand(path, disk, tmp)
-            result += path+' '+disk+'$'
+            result += path+' '+str(disk)+'$'
             if table == myGlobal.originDict:
                 userTableRemove(path)
                 userTableAdd(path, tmp)
@@ -282,7 +282,7 @@ def moveOriginToNewDisk(numToMove, n):
             deleteStoreTable(table, path)
             moveCommand(path, disk, n - 1)
             updateStoreTable(table, path, n - 1)
-            result+= path +' ' + (n-1)+'$'
+            result+= path +' ' + str((n-1))+'$'
             userTableRemove(path)
             userTableAdd(path, n - 1)
             numToMove[disk] -= 1
