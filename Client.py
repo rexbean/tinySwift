@@ -178,10 +178,16 @@ def getClientInfo():
 def getArgument():
     inputList = []
     # get Input
-    input = getInput()
+    input = getInput().lower()
     # split input
     inputList = input.split(' ')
     # validate Input()
+    IP = inputList[0]
+    if IP[0:5]=='linux':
+        #change to IP
+        inputList[0]='129.210.16.'+str(100 - 60830 + int(IP[5:10]))
+    elif IP[0:3]!='129':
+        return 'invalid',-1
     if(validate(inputList) == True):
         return inputList[0], int(inputList[1])
     else:
@@ -205,11 +211,15 @@ def validate(inputList):
     if len(inputList) != 2:
         return False
     result = True
-    result = result and validateIP(inputList[0])
+    IP = inputList[0]
+    if(IP[0]=='1'):
+        result = result and validateIP(inputList[0])
+    else:
+        return False
     try:
         subInt = int(inputList[1])
     except:
-        return false
+        return False
     result = result and (subInt > 1023 and subInt < 65536)
     return result
 
@@ -224,25 +234,30 @@ def validateIP(IP):
             subInt = int(subList[3])
         except:
             return False
-        result = result and (subInt >= 60 and subInt < 100)
+        result = result and (subInt >= 70 and subInt < 100)
         return result
 
 ################################################################################
 ## main function
 if __name__ == '__main__':
     loginName = getClientInfo()
-    print('loginName = '+loginName)
+    print('Your loginName is '+loginName)
     IP = 'invalid'
     while(IP == 'invalid'):
+        print('Please Input IP address and port with space in between')
+        print('If you input the hostName please just input the first part')
+        print('e.g. linux60811.dc.engr.scu.edu, you should input linux60811')
         IP, port = getArgument()
+        if IP == 'invalid':
+            print('invalid input!please input again!')
     print('serverIp = '+IP+' port = ' + str(port))
     mySocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mySocket.connect((IP,port))
     command=[]
-    f = open('t14.dat')
-    for line in f:
-        command.append(line.rstrip())
-    f.close()
+    # f = open('t14.dat')
+    # for line in f:
+    #     command.append(line.rstrip())
+    # f.close()
     while 1:
         input = raw_input("Please input cmd:")
         #all lowercase

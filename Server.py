@@ -616,7 +616,10 @@ def validate(inputList, serverIP):
     result = True
     for i, IP in enumerate(inputList):
         if i != 0:
-            result = result and validateIP(serverIP, IP)
+            if IP[0] == '1':
+                result = result and validateIP(serverIP, IP)
+            elif IP[0] == 'l':
+                result = result and validateHost(serverIP, IP)
     return result
 
 def validateIP(serverIP, IP):
@@ -632,8 +635,28 @@ def validateIP(serverIP, IP):
             subSInt = int(subSList[3])
         except:
             return False
-        result = result and (subInt >= 60 and subInt < 100 and subInt != subSInt)
+        result = result and (subInt >= 70 and subInt < 100 and subInt != subSInt)
         return result
+
+def validateHost(serverIP, IP):
+    subSList = serverIP.split('.')
+    subSInt = int(subSList[3])
+    result = True
+    if len(IP) != 10:
+        print('a')
+        return False
+    if IP[0:5] != 'linux':
+        print('b')
+        return False
+    num = int(IP[5:10])
+
+    if num > 60830 or num < 60800:
+        print('c')
+        return False
+    if num == (subSInt+60730):
+        print('d')
+        return False
+    return True
 
 def getInput():
     inputs = ''
@@ -644,6 +667,17 @@ def getInput():
         line = sys.stdin.readline().rstrip()
     return inputs.rstrip()
 
+def changeToIP(HostList):
+    newList = []
+    for host in HostList:
+        if host[0] == 'l':
+            print(host)
+            host = '129.210.16.'+str(100 - 60830 + int(host[5:10]))
+            newList.append(host)
+        else:
+            newList.append(host)
+    print(newList)
+    return newList
 def InitialTable():
     for i in range(0,4):
         myGlobal.numOriginDict[i] = 0
@@ -661,9 +695,12 @@ if __name__ == '__main__':
     partitionPower, HDIPList = getArgument(serverIP)
     if partitionPower == -1:
         print('invalid input')
+    ## change all Host Name to IP
+    newList = changeToIP(HDIPList)
+    print(newList)
 
     myGlobal.partitionPower = partitionPower
-    myGlobal.diskList = HDIPList
+    myGlobal.diskList = newList
     myGlobal.serverIP = serverIP
     myGlobal.hostname = HostName
     InitialTable()
