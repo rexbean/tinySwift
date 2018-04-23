@@ -541,10 +541,10 @@ def findAvailablePort(serverIP):
 def startServer(mySocket):
     mySocket.listen(1)
     print('Server is listening...')
-    while 1:
-        conn,addr=mySocket.accept()
-        print('Connected by',addr)
-        try:
+    try:
+        while 1:
+            conn,addr=mySocket.accept()
+            print('Connected by',addr)
             while 1:
                 print('$'),
                 inputList = []
@@ -592,9 +592,9 @@ def startServer(mySocket):
                         wrongInput(conn)
                 else:
                     wrongInput(conn)
-        except:
-            conn.close()
-            mySocket.close()
+    except:
+        conn.close()
+        mySocket.close()
 
 ################################################################################
 ## do something with the input
