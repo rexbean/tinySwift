@@ -649,7 +649,7 @@ def getInput():
     return inputs.rstrip()
 
 def InitialTable():
-    for i in range(0,4)
+    for i in range(0,4):
         myGlobal.numOriginDict[i] = 0
         myGlobal.numBackupDict[i] = 0
 
