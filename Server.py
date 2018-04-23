@@ -402,7 +402,7 @@ def updateStoreTable(table, path, disk):
 ## update number table
 def updateNumberTableUp(disk):
     updateNumberTable(myGlobal.numOriginDict, disk, 1)
-    updateNumberTable(myGlobal.numBackupDict, getNextDisk(disk,len(myGlobal.diskList), 1))
+    updateNumberTable(myGlobal.numBackupDict, getNextDisk(disk,len(myGlobal.diskList)), 1)
 
 def updateNumberTableDelete(originDisk, backupDisk):
     if originDisk == -1 and backupDisk == -1:
