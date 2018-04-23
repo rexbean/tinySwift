@@ -242,7 +242,7 @@ def move(disk, table, tableBackup, numToMove):
             else:
                 tmp = getNextDisk(index, n)
             deleteStoreTable(table, path)
-            moveCommand(path, disk, tmp)
+            moveCommand(path, myGloba.diskList[disk], myGlobal.diskList[tmp])
             result += path+' '+str(disk)+'$'
             if table == myGlobal.originDict:
                 userTableRemove(path)
@@ -280,7 +280,7 @@ def moveOriginToNewDisk(numToMove, n):
         disk = table[path]
         if(numToMove[disk] > 0):
             deleteStoreTable(table, path)
-            moveCommand(path, disk, n - 1)
+            moveCommand(path, myGlobal.diskList[disk], myGlobal.diskList[n - 1])
             updateStoreTable(table, path, n - 1)
             result+= path +' ' + str((n-1))+'$'
             userTableRemove(path)
@@ -304,7 +304,7 @@ def moveBackupToNewDisk(numToMove,n):
             if(myGlobal.originDict[path] == n - 1 ):
                 continue
             deleteStoreTable(table, path)
-            moveCommand(path, disk, n - 1)
+            moveCommand(path, myGloba.diskList[disk], myGloba.diskList[n - 1])
             updateStoreTable(table, path, n - 1)
             numToMove[disk] -= 1
         elif numToMove[disk] == 0:
