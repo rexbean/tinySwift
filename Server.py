@@ -433,7 +433,6 @@ def userTableRemove(path):
 
 def userTableAdd(path, disk):
     fileList = []
-    print(path)
     username = path.split('/')[0]
     filename = path.split('/')[1]
     nowTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -459,7 +458,6 @@ def updateUserTableUp(inputList,disk):
 def searchOriginTable(inputList):
     try:
         if inputList[1] in myGlobal.originDict:
-            print('in')
             disk = myGlobal.originDict[inputList[1]]
             print(disk)
             return disk
@@ -471,7 +469,6 @@ def searchOriginTable(inputList):
 def searchBackupTable(inputList):
     try:
         if inputList[1] in myGlobal.backupDict:
-            print('in')
             disk = myGlobal.backupDict[inputList[1]]
             print(disk)
             return disk
@@ -513,7 +510,7 @@ def getServerInfo():
     # get server IP
     serverIP = socket.gethostbyname(HostName)
 
-    myGlobal.loginName = os.popen('whoami').read()
+    myGlobal.loginName = os.popen('whoami').read().rstrip('\n')
 
     return HostName, serverIP
 
