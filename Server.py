@@ -185,9 +185,9 @@ def remove(inputList, conn):
     try:
         result = ''
         ip = inputList[1]
-        if(validate(myGlobal.serverIP,ip)):
+        if(validateIP(myGlobal.serverIP,ip)):
             if ip in myGlobal.diskList:
-                result = moveRemove()
+                result = moveRemove(ip)
             else:
                 result = 'ip does no in the disk list, please resend'
                 print(result)
@@ -205,8 +205,8 @@ def remove(inputList, conn):
 
 ################################################################################
 
-def moveRemove():
-    disk = myGlobal.findDisk(ip)
+def moveRemove(ip):
+    disk = findDisk(ip)
     n = len(myGlobal.diskList) - 1
     numOrigin = myGlobal.numOriginDict[disk]
     numBackup = myGlobal.numBackupDict[disk]
@@ -554,7 +554,8 @@ def startServer(mySocket):
                     return False
                 ## do all lowercase
                 print('input='+input)
-                if input == '':
+                if input == 'end':
+                    conn.close()
                     break
                 inputList = input.rstrip().split(' ')
                 if(len(inputList) != 2 or inputList[0] == None):
@@ -589,15 +590,11 @@ def startServer(mySocket):
                         print(remove(inputList, conn))
                     else:
                         wrongInput(conn)
-                elif (inputList[0] == 'end'):
-                    closeServer(conn)
-                    return True
                 else:
                     wrongInput(conn)
-                    return False
         except:
-            break
-        mySocket.close()
+            conn.close()
+            mySocket.close()
 
 ################################################################################
 ## do something with the input

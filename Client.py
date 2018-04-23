@@ -126,8 +126,8 @@ def myList(input, mySocket):
             fileList = files.split('$')
             length = len(fileList)
             for i in range(1,length):
-                if(fileList[length - 1 - i]!=''):
-                    print(fileList[length - 1 - i])
+                if(fileList[i]!=''):
+                    print(fileList[i])
         else:
             print('Do not have this user!')
     except Exception as e:
@@ -246,6 +246,10 @@ if __name__ == '__main__':
     while 1:
         input = raw_input("Please input cmd:")
         #all lowercase
+#    for input in command:
+        if(input == 'end'):
+            mySocket.send('end')
+            break
         inputList = input.rstrip().split(' ')
         if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
             wrongInput()
@@ -284,7 +288,4 @@ if __name__ == '__main__':
             closeServer(mySocket)
         else:
             wrongInput()
-
-        if(input == 'end'):
-            break
     mySocket.close()
