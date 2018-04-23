@@ -1,4 +1,4 @@
- #!/usr/bin/python
+#!/usr/bin/python
 import socket
 import sys
 import os
@@ -218,7 +218,7 @@ def moveRemove():
     result = move(disk, myGlobal.originDict, myGlobal.backupDict, numToMoveOrigin)
     result += move(disk, myGlobal.backupDict, myGlobal.originDict, numToMoveBackup)
 
-    return result[:-1]
+    return result
 
 
 def findDisk(ip):
@@ -263,7 +263,7 @@ def moveOriginAdd(n):
     print('originNumToMove',originNumToMove)
     result =  moveOriginToNewDisk(originNumToMove, n)
     print(result)
-    return result[:-1]
+    return result
 
 
 def moveBackupAdd(n):
@@ -315,6 +315,7 @@ def moveBackupToNewDisk(numToMove,n):
     print('moveBackupToNewDisk over')
 
 def computeNumToMove(table, n):
+    print(table)
     numToMove = []
     for i, num in enumerate(table):
         numToMove.append(table[i]/n)
