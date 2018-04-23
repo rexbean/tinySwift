@@ -167,7 +167,8 @@ def add(inputList,conn):
             myGlobal.diskList.append(ip)
             n = len(myGlobal.diskList)
             result = moveOriginAdd(n)
-            result += moveBackupAdd(n)
+            moveBackupAdd(n)
+            print(result)
             result = result[:-1]
         else:
             result = 'invalid ip, please resend'
@@ -259,15 +260,19 @@ def getNextDisk(originDisk, n):
 
 def moveOriginAdd(n):
     originNumToMove = computeNumToMove(myGlobal.numOriginDict, n)
+    print('originNumToMove',originNumToMove)
     result =  moveOriginToNewDisk(originNumToMove, n)
+    print(result)
     return result[:-1]
 
 
 def moveBackupAdd(n):
     backupNumToMove = computeNumToMove(myGlobal.numBackupDict, n)
+    print('backupNumToMove',backupNumToMove)
     moveBackupToNewDisk(backupNumToMove, n)
 
 def moveOriginToNewDisk(numToMove, n):
+    print('moveOriginToNewDisk')
     result = ''
     table = myGlobal.originDict
     count = n
@@ -285,9 +290,11 @@ def moveOriginToNewDisk(numToMove, n):
             count= count - 1
         if(count == 0):
             break
+    print('moveOriginToNewDisk',result)
     return result
 
 def moveBackupToNewDisk(numToMove,n):
+    print('moveBackupToNewDisk')
     table = myGlobal.backupDict
     count = n
     for path in table:
@@ -305,6 +312,7 @@ def moveBackupToNewDisk(numToMove,n):
 
         if(count == 0):
             break
+    print('moveBackupToNewDisk over')
 
 def computeNumToMove(table, n):
     numToMove = []
