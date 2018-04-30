@@ -671,12 +671,10 @@ def changeToIP(HostList):
     newList = []
     for host in HostList:
         if host[0] == 'l':
-            print(host)
             host = '129.210.16.'+str(100 - 60830 + int(host[5:10]))
             newList.append(host)
         else:
             newList.append(host)
-    print(newList)
     return newList
 def InitialTable():
     for i in range(0,4):
@@ -691,13 +689,14 @@ if __name__ == '__main__':
 
     # get and validate input
     partitionPower = -1
-    #while(partitionPower == -1): # comment when using the test files
-    partitionPower, HDIPList = getArgument(serverIP)
-    if partitionPower == -1:
-        print('invalid input')
+    while(partitionPower == -1): # comment when using the test files
+        print('please input partitionPower and four disk IP Address')
+        print('If you want to use hostname, please only input the first part of the host name, like linu6011')
+        partitionPower, HDIPList = getArgument(serverIP)
+        if partitionPower == -1:
+            print('invalid input')
     ## change all Host Name to IP
     newList = changeToIP(HDIPList)
-    print(newList)
 
     myGlobal.partitionPower = partitionPower
     myGlobal.diskList = newList
