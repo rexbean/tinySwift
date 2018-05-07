@@ -62,7 +62,7 @@ def up(ip, username, filename):
         r = os.system('ssh '+ server +' mkdir -p '+directory)
         command = 'scp -B '+ filename +' '+server+':'+directory
         result = os.system(command)
-        print(inputList[1].split('/')[1] \
+        print(filename\
           +' has upload to '+ip)
     except Exception as e:
         print(e)
