@@ -253,12 +253,64 @@ def validateIP(IP):
         result = result and (subInt >= 70 and subInt < 100)
         return result
 
+def startClient(input):
+    if(input == 'end'):
+        mySocket.send('end')
+        break
+    inputList = input.rstrip().split(' ')
+    if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
+        wrongInput()
+        continue
+    if(inputList[0] == 'upload'):
+        if(validateUp(inputList)):
+            upload(input,mySocket)
+        else:
+            wrongInput()
+    elif (inputList[0] == 'list'):
+        if(validateList(inputList)):
+            myList(input, mySocket)
+        else:
+            wrongInput()
+    elif (inputList[0] == 'download'):
+        if(validateDown(inputList)):
+            download(input, mySocket)
+        else:
+            wrongInput()
+    elif (inputList[0] == 'delete'):
+        if(validateDelete(inputList)):
+            delete(input, mySocket)
+        else:
+            wrongInput()
+    elif (inputList[0] == 'add'):
+        if(validateAdd(inputList)):
+            add(input, mySocket)
+        else:
+            wrongInput()
+    elif (inputList[0] == 'remove'):
+        if(validateRemove(inputList)):
+            remove(input, mySocket)
+        else:
+            wrongInput()
+    elif (inputList[0] == 'end'):
+        closeServer(mySocket)
+    else:
+        wrongInput()
+
 ################################################################################
 ## main function
 if __name__ == '__main__':
     loginName = getClientInfo()
     print('Your loginName is '+loginName)
     IP = 'invalid'
+    print('Please input 1 for autoTest using test file')
+    print('Please input 2 for mannully test')
+    choice = raw_input('please input your choice')
+    command=[]
+    if choice.strip() == '1':
+        f = open('t14.dat')
+        for line in f:
+           command.append(line.rstrip())
+        f.close()
     while(IP == 'invalid'):
         print('Please Input IP address and port with space in between')
         print('If you input the hostName please just input the first part')
@@ -269,54 +321,15 @@ if __name__ == '__main__':
     print('serverIp = '+IP+' port = ' + str(port))
     mySocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mySocket.connect((IP,port))
-    command=[]
-    #f = open('t15.dat')
-    #for line in f:
-     #   command.append(line.rstrip())
-    #f.close()
-    while 1:
-        input = raw_input("Please input cmd:")
-        #all lowercase
-    #for input in command:
-        if(input == 'end'):
-            mySocket.send('end')
-            break
-        inputList = input.rstrip().split(' ')
-        if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
-            wrongInput()
-            continue
-        if(inputList[0] == 'upload'):
-            if(validateUp(inputList)):
-                upload(input,mySocket)
-            else:
-                wrongInput()
-        elif (inputList[0] == 'list'):
-            if(validateList(inputList)):
-                myList(input, mySocket)
-            else:
-                wrongInput()
-        elif (inputList[0] == 'download'):
-            if(validateDown(inputList)):
-                download(input, mySocket)
-            else:
-                wrongInput()
-        elif (inputList[0] == 'delete'):
-            if(validateDelete(inputList)):
-                delete(input, mySocket)
-            else:
-                wrongInput()
-        elif (inputList[0] == 'add'):
-            if(validateAdd(inputList)):
-                add(input, mySocket)
-            else:
-                wrongInput()
-        elif (inputList[0] == 'remove'):
-            if(validateRemove(inputList)):
-                remove(input, mySocket)
-            else:
-                wrongInput()
-        elif (inputList[0] == 'end'):
-            closeServer(mySocket)
-        else:
-            wrongInput()
-    mySocket.close()
+
+    if choice == '1':
+        for input in command:
+            startClient(input)
+        mySocket.close()
+    elif choice == '2':
+        while 1:
+            input = raw_input("Please input cmd:")
+            startClient(input)
+            mySocket.close()
+            #all lowercase
+        #for input in command:
