@@ -1,5 +1,5 @@
-end
 upload rex/hello
+upload rex/hello0
 upload rex/hello1
 upload rex/hello2
 upload rex/hello3
@@ -32,4 +32,5 @@ list rex
 add 129.210.16.73
 list rex
 remove 129.210.16.73
+list rex
 end

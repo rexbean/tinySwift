@@ -90,6 +90,9 @@ def download(input, mySocket):
         elif(ipList[1] != '-1'):
             server = loginName+'@'+ipList[1]
             command = 'scp -B '+server+':'+directory+filename+ ' ./'+username
+        print('The content of file are:')
+        os.system('cat '+input.split(' ')[1])
+        print('\n\n')
     except Exception as e:
         print(e)
 
@@ -122,7 +125,7 @@ def myList(input, mySocket):
         files = mySocket.recv(1024)
         if files != '-1':
             username = input.split(' ')[1]
-            print(username+'has files:')
+            print(username+' has files:')
             fileList = files.split('$')
             length = len(fileList)
             for i in range(1,length):
@@ -143,9 +146,15 @@ def add(input, mySocket):
         else:
             mySocket.send(input)
             files = mySocket.recv(1024)
-            fileList = files.split('$')
-            for file in fileList:
-                print(file)
+            fileList = files.split('@')
+            originList = fileList[0].split('$')
+            print('The following origin files have been moved:')
+            for file in originList:
+                print(file.split(' ')[0]+' has been moved to disk '+file.split(' ')[1])
+            backupList = fileList[1].split('$')
+            print('The following backup files have been moved:')
+            for file in backupList:
+                print(file.split(' ')[0]+' has been moved to disk '+file.split(' ')[1])
     except Exception as e:
         print(e)
 
@@ -159,9 +168,16 @@ def remove(input, mySocket):
         else:
             mySocket.send(input)
             files = mySocket.recv(1024)
-            fileList = files.split('$')
-            for file in fileList:
-                print(file)
+            fileList = files.split('@')
+            originList = fileList[0].split('$')
+            print('The following origin files have been moved:')
+            for file in originList:
+                print(file.split(' ')[0]+' has been moved to disk '+ file.split(' ')[1])
+
+            backupList = fileList[1].split('$')
+            print('The following backup files have been moved:')
+            for file in backupList:
+                print(file.split(' ')[0]+' has been moved to disk '+ file.split(' ')[1])
     except Exception as e:
         print(e)
 
@@ -254,14 +270,14 @@ if __name__ == '__main__':
     mySocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mySocket.connect((IP,port))
     command=[]
-    # f = open('t14.dat')
-    # for line in f:
-    #     command.append(line.rstrip())
-    # f.close()
+    #f = open('t15.dat')
+    #for line in f:
+     #   command.append(line.rstrip())
+    #f.close()
     while 1:
         input = raw_input("Please input cmd:")
         #all lowercase
-#    for input in command:
+    #for input in command:
         if(input == 'end'):
             mySocket.send('end')
             break
