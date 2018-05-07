@@ -573,16 +573,16 @@ def check():
         for path in myGlobal.originDict:
             disk = myGlobal.originDict[path]
             diskIP = myGlobal.diskList[disk]
-            result = os.system('ssh '+ diskIP +' stat /tmp/'+myGlobal.loginName+'/'+path)
+            result = os.system('ssh '+ diskIP +' stat /tmp/'+myGlobal.loginName+'/'+path+' >/dev/null 2>&1')
             print('origin '+path +' is ',result)
             if result != 0:
                 restore(path, 0)
-            
+
 
             for path in myGlobal.backupDict:
                 disk = myGlobal.backupDict[path]
                 diskIP = myGlobal.diskList[disk]
-                result = os.system('ssh '+ diskIP +' stat /tmp/'+myGlobal.loginName+'/'+path)
+                result = os.system('ssh '+ diskIP +' stat /tmp/'+myGlobal.loginName+'/'+path+' >/dev/null 2>&1')
                 print('backup '+path +' is ',result)
                 if result != 0:
                     restore(path, 1)
