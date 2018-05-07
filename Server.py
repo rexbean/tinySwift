@@ -574,18 +574,20 @@ def check():
             disk = myGlobal.originDict[path]
             diskIP = myGlobal.diskList[disk]
             result = os.system('ssh '+ diskIP +' stat /tmp/'+myGlobal.loginName+'/'+path+' >/dev/null 2>&1')
-            print('origin '+path +' is ',result)
+            print('origin '+path +' exists on origin disk')
             if result != 0:
+                print(path+' on origin disk has been deleted')
                 restore(path, 0)
 
 
-            for path in myGlobal.backupDict:
-                disk = myGlobal.backupDict[path]
-                diskIP = myGlobal.diskList[disk]
-                result = os.system('ssh '+ diskIP +' stat /tmp/'+myGlobal.loginName+'/'+path+' >/dev/null 2>&1')
-                print('backup '+path +' is ',result)
-                if result != 0:
-                    restore(path, 1)
+        for path in myGlobal.backupDict:
+            disk = myGlobal.backupDict[path]
+            diskIP = myGlobal.diskList[disk]
+            result = os.system('ssh '+ diskIP +' stat /tmp/'+myGlobal.loginName+'/'+path+' >/dev/null 2>&1')
+            print('backup '+path +' exists on backup disk')
+            if result != 0:
+                print(path +' on backup disk has been deleted')
+                restore(path, 1)
     except Exception as e:
         print(e)
 
@@ -595,7 +597,7 @@ def restore(path, origin):
         diskOrigin = myGlobal.originDict[path]
         diskIP = myGlobal.diskList[disk]
         diskIPOrigin = myGlobal.diskList[diskOrigin]
-        result = os.system('ssh '+ diskIP + ' stat /tmp/'+myGlobal.loginName+'/'+path)
+        result = os.system('ssh '+ diskIP + ' stat /tmp/'+myGlobal.loginName+'/'+path+' >/dev/null 2>&1')
         if result == 0:
             moveCommand(path, diskIP, diskIPOrigin)
             print(path+' has been restored from backup disk')
@@ -605,8 +607,8 @@ def restore(path, origin):
         disk = myGlobal.originDict[path]
         diskBackup = myGlobal.backupDict[path]
         diskIP = myGlobal.diskList[disk]
-        diskBackup = myGlobal.diskList[diskBackup]
-        result = os.system('ssh '+ diskIP + ' stat /tmp/'+myGlobal.loginName+'/'+path)
+        diskIPBackup = myGlobal.diskList[diskBackup]
+        result = os.system('ssh '+ diskIP + ' stat /tmp/'+myGlobal.loginName+'/'+path+' >/dev/null 2>&1')
         if result == 0:
             moveCommand(path, diskIP, diskIPBackup)
             print(path+' has been restored from origin disk')
