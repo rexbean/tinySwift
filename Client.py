@@ -140,6 +140,7 @@ def myList(input, mySocket):
 ## add
 def add(input, mySocket):
     try:
+        input = input if input[4:9] != 'linux' else 'add 129.210.16.'+str(100 - 60830 + int(input[9:14]))
         ip = input.split(' ')[1]
         if validateIP(ip) == False:
             print('The IP is invalid')
@@ -162,6 +163,7 @@ def add(input, mySocket):
 ## remove
 def remove(input, mySocket):
     try:
+        input = input if input[7:12] != 'linux' else 'remove 129.210.16.'+str(100 - 60830 + int(input[12:17]))
         ip = input.split(' ')[1]
         if validateIP(ip) == False:
             print('The IP is invalid')
@@ -256,11 +258,11 @@ def validateIP(IP):
 def startClient(input):
     if(input == 'end'):
         mySocket.send('end')
-        break
+        return
     inputList = input.rstrip().split(' ')
     if(len(inputList) != 2 or inputList[0] == None or inputList[0] == ''):
         wrongInput()
-        continue
+        return
     if(inputList[0] == 'upload'):
         if(validateUp(inputList)):
             upload(input,mySocket)
@@ -304,7 +306,7 @@ if __name__ == '__main__':
     IP = 'invalid'
     print('Please input 1 for autoTest using test file')
     print('Please input 2 for mannully test')
-    choice = raw_input('please input your choice')
+    choice = raw_input('please input your choice:')
     command=[]
     if choice.strip() == '1':
         f = open('t14.dat')
@@ -330,6 +332,6 @@ if __name__ == '__main__':
         while 1:
             input = raw_input("Please input cmd:")
             startClient(input)
-            mySocket.close()
+        mySocket.close()
             #all lowercase
         #for input in command:

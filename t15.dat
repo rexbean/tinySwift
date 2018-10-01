@@ -1,9 +1,20 @@
 upload rex/hello
+upload rex/hello0
 upload rex/hello1
-upload rex/hello2
-upload rex/hello3
 upload rex/deng
+upload rex/deng0
 upload rex/deng1
-uplaod rex/deng2
-list
-end
+upload rex/angela
+upload rex/angela0
+upload rex/angela1
+upload rex/chen
+upload rex/chen0
+upload rex/chen1
+upload rex/feng
+upload rex/feng0
+upload rex/feng1
+list rex
+add 129.210.16.73
+list rex
+remove 129.210.16.73
+list rex

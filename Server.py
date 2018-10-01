@@ -181,7 +181,7 @@ def add(inputList,conn):
         print('add',e)
         result = e
     finally:
-        conn.send(result)
+        conn.send(result if result != '' else 'nothing new$nothing new@nothing new$nothing new')
 
 ################################################################################
 ## remove
@@ -202,7 +202,7 @@ def remove(inputList, conn):
         print(e)
         result = e
     finally:
-        conn.send(result)
+        conn.send(result if result != '' else 'nothing other$nothing other@nothing other$nothing other')
 
 
 
@@ -233,6 +233,7 @@ def moveRemove(ip):
         result += move(disk, myGlobal.backupDict, myGlobal.originDict, numToMoveBackup)
         result = result[:-1]
         print('remove result = ',result)
+        myGlobal.diskList.remove(ip)
     except Exception as e:
         print('remove move',e)
     return result
@@ -520,9 +521,9 @@ def searchBackupTable(inputList):
 ##def add(inputList, conn):
 def consistentHashing(name):
     code = getMD5SUM(name)
-    i_code = int(code, 16) >> 112
+    i_code = int(code, 16) >> 128 - int(myGlobal.partitionPower)
     try:
-        piece = math.pow(2,(float)(myGlobal.partitionPower))/4
+        piece = math.pow(2,(float)(myGlobal.partitionPower))/len(myGlobal.diskList)
     except Exception as e:
         print(e)
     if(i_code >= 0 and i_code < piece):
@@ -533,6 +534,7 @@ def consistentHashing(name):
         return 2
     elif(i_code >= 3 * piece and i_code < 4 * piece):
         return 3
+    else:return int(i_code/piece)
 
 def getMD5SUM(name):
     myMd5 = hashlib.md5()
@@ -769,7 +771,7 @@ if __name__ == '__main__':
     partitionPower = -1
     while(partitionPower == -1): # comment when using the test files
         print('please input partitionPower and four disk IP Address')
-        print('If you want to use hostname, please only input the first part of the host name, like linu6011')
+        print('If you want to use hostname, please only input the first part of the host name, like linux60811')
         partitionPower, HDIPList = getArgument(serverIP)
         if partitionPower == -1:
             print('invalid input')
